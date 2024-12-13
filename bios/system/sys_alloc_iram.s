@@ -29,17 +29,13 @@
 /**
  * INT 17h AH=0Fh - sys_alloc_iram
  * Input:
- * - BX = TODO
+ * - BX = If non-zero, location in IRAM to store pointer to allocated memory in (TODO: validate behaviour)
  * - CX = Bytes to allocate
  * Output:
  * - AX = Near pointer to memory allocated, or 0 on failure
  */
     .global sys_alloc_iram
 sys_alloc_iram:
-    // TODO: Handle non-zero BX pointers
-    test bx, bx
-    jnz error_handle_irq23
-
     mov bp, sp
     push bx
     push cx
@@ -138,4 +134,12 @@ sys_alloc_iram:
     pop dx
     pop cx
     pop bx
+
+    test bx, bx
+    jz 9f
+
+    // Store pointer in IRAM
+    mov ss:[bx], ax
+    mov word ptr ss:[bx+2], 0
+9:
     ret

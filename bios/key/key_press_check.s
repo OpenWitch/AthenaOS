@@ -39,6 +39,6 @@ key_press_check:
     .global __key_clear_pressed
 __key_clear_pressed:
     xor bp, bp
-    ss mov word ptr [keys_pressed], bp
-    ss mov word ptr [keys_pressed_repeat], bp
+    ss mov [keys_pressed], bp
+    ss mov [keys_pressed_repeat], bp
     ret
