@@ -61,10 +61,10 @@ irq_text_handler:
 text_cursor_color: .byte 1
     .global text_cursor_rate
 text_cursor_rate:  .byte 30
+    .global text_screen
+text_screen: .byte 1
 
     .section ".bss"
-    .global text_screen
-text_screen: .byte 0
     .global text_mode
 text_mode: .byte 0
     .global text_color

@@ -85,23 +85,28 @@ _start:
 	mov word ptr [bp + 2], offset __heap_length
 
 	// initialize LCD shade LUT
-	mov ax, 0x9BDF
+	mov ax, 0x6420
 	out 0x1C, ax
-	mov ax, 0x0246
+	mov ax, 0xFCA8
 	out 0x1E, ax
 
 	// initialize default palette
-	mov ax, 0x0257
+	mov ax, 0x7530
 	out 0x20, ax
-	mov ax, 0x7520
+	mov ax, 0x0357
 	out 0x22, ax
 
-	// initialize text mode
-	mov al, 0x66
+	// boot in JPN2 mode by default
+	mov al, 0x07
+	out 0x04, al
+	mov al, 0x32
 	out 0x07, al
+	mov ah, 0x02
+	mov bl, 1
+	int 0x13
 	xor ax, ax
 	int 0x13
-	mov al, 0x01
+	mov al, 0x02
 	out 0x00, al
 
 	// initialize sound system

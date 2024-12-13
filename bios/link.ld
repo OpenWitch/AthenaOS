@@ -2,8 +2,6 @@ OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
 SECTIONS
 {
-	__reserved_iram_bytes = 0x1C0;
-
 	/* segelf segment start markers for target text section. */
 	".text!" 0xF0000 (NOLOAD) :
 	{
@@ -54,12 +52,13 @@ SECTIONS
 		"__heap_end!" = .;
 	}
 
-	. = __reserved_iram_bytes;
+	. = 0x230;
 
 	/* Target data section. */
 	.data . : AT(ADDR(".text") + SIZEOF(".text"))
 	{
 		__data_start = .;
+		KEEP(*(.bios_data ".bios_data.*[^&]"))
 		*(.rodata ".rodata.*[^&]")
 		*(.data ".data.*[^&]")
 		. = ALIGN (2);
