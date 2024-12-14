@@ -40,8 +40,11 @@
     .global bank_read_block
 bank_read_block:
     push ax
-    push es
-    pop ds
+    // DS:SI => ES:DI
+    push ds
+    pop es
+    mov di, si
+    // BX:DX => DS:SI
     mov si, dx
     bank_rw_bx_to_segment_start ds
     shr cx, 1

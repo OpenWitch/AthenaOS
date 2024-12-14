@@ -43,6 +43,7 @@ SECTIONS
 	".data!" 0x00000 (NOLOAD) : AT(ADDR(".text") + SIZEOF(".text"))
 	{
 		"__data_start!" = .;
+		*(".bios_data!*" ".bios_data.*!")
 		*(".rodata!*" ".rodata.*!")
 		*(".data!*" ".data.*!")
 		*(".bss!*" ".bss.*!")
@@ -90,6 +91,7 @@ SECTIONS
 	".data&" . (NOLOAD) :
 	{
 		"__data_start&" = .;
+		*(".bios_data&*" ".bios_data.*&")
 		*(".rodata&*" ".rodata.*&")
 		*(".data&*" ".data.*&")
 		*(".bss&*" ".bss.*&")
