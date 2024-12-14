@@ -28,9 +28,9 @@
 
 	.section .bios_data, "a"
 
-// [0x230, 2 bytes] _bios_tmp_buf
+// [0x230, 2 bytes] bios_tmp_buffer
 // Near IRAM pointer to 128-byte temporary memory buffer.
 // Used for XMODEM transfers by FreyaOS.
-	.global _bios_tmp_buf
-_bios_tmp_buf:
+	.global bios_tmp_buffer
+bios_tmp_buffer:
 	.word 0x100

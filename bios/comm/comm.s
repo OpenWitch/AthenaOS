@@ -41,7 +41,7 @@ irq_comm_handlers:
 	.word comm_get_baudrate
 	.word comm_set_cancel_key
 	.word comm_get_cancel_key
-	.word error_handle_irq20 // TODO: comm_xmodem
+	.word comm_xmodem
 
 	.global irq_comm_handler
 irq_comm_handler:

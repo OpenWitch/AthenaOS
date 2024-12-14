@@ -29,6 +29,13 @@ BIOS_BANK_MEMORY := mbm29dl400tc
 
 # BIOS_BANK_ROM_FORCE_COUNT := 0
 
+# Select the serial port driver used by the BIOS.
+#
+# Available options:
+# - ext - console EXT port
+
+# BIOS_COMM_DRIVER := ext
+
 # Select the RTC provided by the cartridge.
 #
 # Available options:
