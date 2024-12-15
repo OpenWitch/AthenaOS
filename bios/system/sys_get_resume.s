@@ -30,9 +30,14 @@
  * INT 17h AH=15h - sys_get_resume
  * Input:
  * Output:
- * - AX = ?
+ * - AX = resume slot flags
  */
     .global sys_get_resume
 sys_get_resume:
-    ss mov ax, [sys_resume_unk]
+    push ds
+    push 0x1000
+    pop ds
+    mov ax, [SRAM3_OFS_RESUME_FLAG]
+    xchg ah, al
+    pop ds
     ret

@@ -44,6 +44,19 @@ __sys_slot_to_address:
  */
     .global sys_suspend
 sys_suspend:
+    // Set resumable flag
+    push bx
+    push ds
+    mov bx, SRAM3_OFS_RESUME_FLAG
+    add bl, al
+    push 0x1000
+    pop ds
+    mov ah, 0x80
+    add ah, al
+    mov byte ptr [bx], ah
+    pop ds
+    pop bx
+
     call __sys_slot_to_address
 
     pusha
@@ -120,6 +133,10 @@ __sys_suspend_no_io_table:
     loop 1b
     jmp __sys_suspend_after_io
 
+__sys_resume_none:
+    xor ax, ax
+    ret    
+
 /**
  * INT 17h AH=0Ch - sys_resume
  * Input:
@@ -129,7 +146,18 @@ __sys_suspend_no_io_table:
  */
     .global sys_resume
 sys_resume:
-    dec al // ???
+    // Check resumable flag
+    push bx
+    push ds
+    mov bx, SRAM3_OFS_RESUME_FLAG
+    add bl, al
+    push 0x1000
+    pop ds
+    test byte ptr [bx], 0x80
+    pop ds
+    pop bx
+    jz __sys_resume_none
+
     call __sys_slot_to_address
 
     // DS:SI => suspend target

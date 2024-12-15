@@ -57,7 +57,5 @@ irq_system_handler:
 	iret
 
     .section ".bss"
-    .global sys_resume_unk
-sys_resume_unk: .word 0
     .global sys_remote_unk
 sys_remote_unk: .word 0

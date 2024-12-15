@@ -29,10 +29,19 @@
 /**
  * INT 17h AH=14h - sys_set_resume
  * Input:
- * - AX = ?
+ * - BX = resume slot flags
  * Output:
  */
     .global sys_set_resume
 sys_set_resume:
-    ss mov [sys_resume_unk], ax
+    push ds
+    push bx
+    xchg bh, bl
+    and bx, 0xF0F0
+    or bx, 0x0100
+    push 0x1000
+    pop ds
+    mov [SRAM3_OFS_RESUME_FLAG], bx
+    pop bx
+    pop ds
     ret
