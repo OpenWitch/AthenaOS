@@ -39,9 +39,6 @@
 	.section ".text"
     .global __bank_write_fill_block_flash_ram
 __bank_write_fill_block_flash_ram:
-	push ax
-	bank_rw_bx_to_sram_segment_start es
-	pop ax
 	mov di, dx
 
 	mov bx, 0xAAA
@@ -75,8 +72,6 @@ __bank_write_block_flash_ram:
 9:
 	mov byte ptr es:[di], 0x90
 	mov byte ptr es:[di], 0xF0
-
-	bank_rw_bx_to_sram_segment_end
 	retf
 
 __bank_fill_block_flash_ram:

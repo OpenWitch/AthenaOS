@@ -402,6 +402,7 @@ comm_xmodem_block_to_block:
 	inc word ptr [di + OFS_CURR_BLOCK]
 	mov ax, [di + OFS_BLOCK_SIZE]
 	add [di + OFS_OFFSET], ax
+	adc word ptr [di + OFS_BANK], 0
 
 	// -> Block
 	mov ax, 0x03
