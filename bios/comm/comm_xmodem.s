@@ -236,20 +236,21 @@ comm_xmodem_block_receive:
 	test ah, ah
 	jnz comm_xmodem_finish_state
 
-	ss mov si, [bios_tmp_buffer]
-	mov bl, 0
-comm_xmodem_block_receive_checksum:
-	ss lodsb
-	add bl, al
-	loop comm_xmodem_block_receive_checksum
-
 	// Receive checksum byte
 	call comm_receive_char
 	test ah, ah
 	jnz comm_xmodem_finish_state
+	mov ah, al
 
-	// Comapre checksum byte
-	cmp bl, al
+	ss mov si, [bios_tmp_buffer]
+	mov bl, 0
+1:
+	ss lodsb
+	add bl, al
+	loop 1b
+
+	// Compare checksum byte
+	cmp bl, ah
 	jne comm_xmodem_block_receive_nak
 
 	// Write block to bank
@@ -309,14 +310,51 @@ comm_xmodem_block_send_to_close:
 	jmp comm_xmodem_block_to_close
 
 comm_xmodem_block:
-        test byte ptr [di + OFS_MODE], 0x01
-        jnz comm_xmodem_block_receive
+	test byte ptr [di + OFS_MODE], 0x01
+	jnz comm_xmodem_block_receive
 
 comm_xmodem_block_send:
 	// Check transfer size
 	mov ax, [di + OFS_CURR_BLOCK]
 	cmp ax, [di + OFS_BLOCK_COUNT]
 	jae comm_xmodem_block_send_to_close
+
+	// Read block from bank
+	// Preserve DI, DS, ES
+	push ds
+	push di
+	push es
+
+	mov bx, [di + OFS_BANK]
+	mov cx, [di + OFS_BLOCK_SIZE]
+	push cx
+	mov dx, [di + OFS_OFFSET]
+
+	push ss
+	pop ds
+	mov si, [bios_tmp_buffer]
+	push si
+
+	call bank_read_block
+
+	pop si
+	pop cx
+	pop es
+	pop di
+	
+	// Calculate checksum
+	// Use CX from previous call
+	push ss
+	pop ds
+	
+	mov bl, 0
+1:
+	lodsb
+	add bl, al
+	loop 1b
+
+	pop ds
+	push bx
 
 	// Send SOH
 	mov bl, SOH
@@ -337,47 +375,20 @@ comm_xmodem_block_send:
 	test ah, ah
 	jnz comm_xmodem_finish_state
 
-	// Read block from bank
-	// Preserve DI, DS, ES
-	push ds
-	push di
-	push es
-
-	mov bx, [di + OFS_BANK]
-	mov cx, [di + OFS_BLOCK_SIZE]
-	push cx
-	mov dx, [di + OFS_OFFSET]
-
-	push ss
-	pop ds
-	mov si, [bios_tmp_buffer]
-
-	call bank_read_block
-
-	pop cx
-	pop es
-	pop di
-
 	// Send bank data
-	// Use CX from above call
+	push ds
+	mov cx, [di + OFS_BLOCK_SIZE]
 	push ss
 	pop ds
 	mov dx, [bios_tmp_buffer]
 	call comm_send_block
-
 	pop ds
 
 	test ah, ah
 	jnz comm_xmodem_finish_state
 
 	// Send checksum
-	ss mov si, [bios_tmp_buffer]
-	mov bl, 0
-comm_xmodem_block_send_checksum:
-	ss lodsb
-	add bl, al
-	loop comm_xmodem_block_send_checksum
-
+	pop bx
 	call comm_send_char	
 	test ah, ah
 	jnz comm_xmodem_finish_state
