@@ -37,13 +37,12 @@
  */
     .global screen2_get_window
 screen2_get_window:
-    in ax, IO_SCR2_WIN_X1
-    mov dx, ax
     in ax, IO_SCR2_WIN_X2
+    mov dx, ax
+    in ax, IO_SCR2_WIN_X1
 
-    // DX = top-left, AX = bottom-right
-    sub ax, dx
-    add ax, 0x101
-    // DX = top-left, AX = width-height
-    xchg ax, dx
+    // DX = bottom-right, AX = top-left
+    sub dl, al
+    sub dh, ah
+    // DX = width-height, AX = top-left
     ret

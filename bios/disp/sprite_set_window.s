@@ -40,8 +40,8 @@ sprite_set_window:
     push ax
     mov ax, bx
     out IO_SPR_WIN_X1, ax
-    add ax, cx
-    sub ax, 0x101
+    add al, cl
+    add ah, ch
     out IO_SPR_WIN_X2, ax
     pop ax
     ret
