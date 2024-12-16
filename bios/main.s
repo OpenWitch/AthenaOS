@@ -52,7 +52,6 @@ _start:
 
 	// clear interrupt vectors
 	mov di, ax
-	mov si, offset "irq_handlers"
 	mov cx, 0x40
 	mov ax, cs
 1:
@@ -63,18 +62,27 @@ _start:
 	loop 1b
 
 	// write interrupt vectors
-	mov di, (0x08 * 4)
-	mov si, offset "irq_handlers"
-	mov cx, offset ((irq_handlers_end - irq_handlers) >> 1)
+	mov di, (0x28 * 4)
+	mov si, offset "irq_handlers_28"
+	mov cx, offset ((irq_handlers_28_end - irq_handlers_28) >> 1)
 	mov ax, cs
 1:
 	movsw // offset
 	stosw // segment
 	loop 1b
 
-	// initialize interrupts
-	mov al, 0x08
+	mov di, (0x10 * 4)
+	mov si, offset "irq_handlers_10"
+	mov cx, offset ((irq_handlers_10_end - irq_handlers_10) >> 1)
+1:
+	movsw // offset
+	stosw // segment
+	loop 1b
+
+	// Use IRQ vector 0x28 (required by sound.il)
+	mov al, 0x28
 	out IO_HWINT_VECTOR, al
+	// Enable VBlank interrupt by default
 	mov al, HWINT_VBLANK
 	out IO_HWINT_ENABLE, al
 	sti
@@ -116,15 +124,7 @@ _start:
 	// jump to OS
 	jmp 0xE000:0x0000
 
-irq_handlers:
-	.word hw_irq_serial_tx_handler		// 0x08 (HW - serial TX)
-	.word hw_irq_key_handler			// 0x09 (HW - key)
-	.word hw_irq_cartridge_handler		// 0x0A (HW - cartridge)
-	.word hw_irq_serial_rx_handler		// 0x0B (HW - serial RX)
-	.word hw_irq_line_handler			// 0x0C (HW - line)
-	.word hw_irq_vblank_timer_handler	// 0x0D (HW - VBlank timer)
-	.word hw_irq_vblank_handler			// 0x0E (HW - VBlank)
-	.word hw_irq_hblank_timer_handler	// 0x0F (HW - HBlank timer)
+irq_handlers_10:
 	.word irq_exit_handler				// 0x10 (BIOS - Exit)
 	.word irq_key_handler				// 0x11 (BIOS - Key)
 	.word irq_disp_handler				// 0x12 (BIOS - Display)
@@ -134,4 +134,15 @@ irq_handlers:
 	.word irq_timer_handler 			// 0x16 (BIOS - Timer)
 	.word irq_system_handler			// 0x17 (BIOS - System)
 	.word irq_bank_handler  			// 0x18 (BIOS - Bank)
-irq_handlers_end:
+irq_handlers_10_end:
+
+irq_handlers_28:
+	.word hw_irq_serial_tx_handler		// 0x28 (HW - serial TX)
+	.word hw_irq_key_handler			// 0x29 (HW - key)
+	.word hw_irq_cartridge_handler		// 0x2A (HW - cartridge)
+	.word hw_irq_serial_rx_handler		// 0x2B (HW - serial RX)
+	.word hw_irq_line_handler			// 0x2C (HW - line)
+	.word hw_irq_vblank_timer_handler	// 0x2D (HW - VBlank timer)
+	.word hw_irq_vblank_handler			// 0x2E (HW - VBlank)
+	.word hw_irq_hblank_timer_handler	// 0x2F (HW - HBlank timer)
+irq_handlers_28_end:
