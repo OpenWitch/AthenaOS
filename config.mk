@@ -21,11 +21,12 @@
 # - rom_ce - read-only memory, depends on 0xCE port support (slightly faster)
 # - ram_ce - read-write memory, depends on 0xCE port support
 # - mbm29dl400tc - MBM29DL400TC flash chip
+# - js28f00am29ew - JS28F00AM29EW flash chip
 
-BIOS_BANK_MEMORY := mbm29dl400tc
+# BIOS_BANK_MEMORY := mbm29dl400tc
 
 # Force ROM banking to emulate a specified number of banks.
-# For WonderWitch compatibility on >512KB cartridges, set this value to 8.
+# For compatibility on >512KB cartridges, set this value to 8.
 
 # BIOS_BANK_ROM_FORCE_COUNT := 0
 
@@ -74,4 +75,7 @@ BIOS_BANK_MEMORY := mbm29dl400tc
 
 # VERSION := custom
 
+# Define the project flavor, used for distinguishing builds from each other.
+
+# FLAVOR := custom
 

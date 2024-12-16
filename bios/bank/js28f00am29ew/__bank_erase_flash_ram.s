@@ -29,62 +29,36 @@
 
 /**
  * Input:
- * - AH = 0 if write, 1 if fill
- * - AL = fill value
  * - BX = bank ID (8000 ~ FFFF)
- * - CX = bytes to write
- * - DX = address within bank
- * - DS:SI = input buffer
  */
 	.section ".text"
-    .global __bank_write_fill_block_flash_ram
-__bank_write_fill_block_flash_ram:
-	mov di, dx
+    .global __bank_erase_flash_ram
+__bank_erase_flash_ram:
+	// This chip uses 128KB sectors - only erase even banks
+	test bl, 1
+	jnz 9f
 
 	mov bx, 0xAAA
+	mov si, 0x555
 
-	mov byte ptr es:[bx], 0xAA
-	mov byte ptr es:[0x555], 0x55
-	mov byte ptr es:[bx], 0x20
+	mov byte ptr [bx], 0xAA
+	mov byte ptr [si], 0x55
+	mov byte ptr [bx], 0x80
+	mov byte ptr [bx], 0xAA
+	mov byte ptr [si], 0x55
+	xor bx, bx
+	mov byte ptr [bx], 0x30
 
-	cld
-	
-	test ah, ah
-	jnz __bank_fill_block_flash_ram
-	
-__bank_write_block_flash_ram:
 1:
-	mov byte ptr es:[di], 0xA0
-	movsb
-3:
 	nop
 	nop
-	mov al, byte ptr es:[di]
+	mov al, byte [bx]
 	nop
 	nop
-	cmp al, byte ptr es:[di]
-	jne 3b
-	loop 1b
-
+	cmp al, byte [bx] // DQ2 and/or DQ6 toggles if status register
+	jne 1b
 9:
-	mov byte ptr es:[di], 0x90
-	mov byte ptr es:[di], 0xF0
 	retf
-
-__bank_fill_block_flash_ram:
-1:
-	mov byte ptr es:[di], 0xA0
-	stosb
-3:
-	nop
-	nop
-	mov ah, byte ptr es:[di]
-	nop
-	nop
-	cmp ah, byte ptr es:[di]
-	jne 3b
-	loop 1b
-	jmp 9b
     
-    .global __bank_write_fill_block_flash_ram_size
-__bank_write_fill_block_flash_ram_size = . - __bank_write_fill_block_flash_ram
+    .global __bank_erase_flash_ram_size
+__bank_erase_flash_ram_size = . - __bank_erase_flash_ram

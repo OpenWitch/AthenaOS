@@ -34,8 +34,6 @@
 	.section ".text"
     .global __bank_erase_flash_ram
 __bank_erase_flash_ram:
-	bank_rw_bx_to_sram_segment_start ds
-
 	mov bx, 0xAAA
 	mov si, 0x555
 
@@ -57,8 +55,6 @@ __bank_erase_flash_ram:
 	nop
 	cmp al, byte [bx] // DQ2 and/or DQ6 toggles if status register
 	jne 1b
-
-	bank_rw_bx_to_sram_segment_end
 	retf
     
     .global __bank_erase_flash_ram_size

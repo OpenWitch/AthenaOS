@@ -52,11 +52,47 @@ __bank_write_fill_block_flash_ram:
 	test ah, ah
 	jnz __bank_fill_block_flash_ram
 	
-__bank_write_block_flash_ram:
+	// check if we can write buffered:
+	// length needs to be <= 256
+	cmp cx, 256
+	ja __bwb_write_slow
+
+	// + addresses must fit within one 512-byte block
+	mov ax, di
+	add ax, cx
+	dec ax
+	xor ax, di
+	and ax, 0xFE00
+	jnz __bwb_write_slow
+
+__bwb_write_fast:
+	// start write
+	dec cx
+	mov byte ptr es:[di], 0x25
+	mov byte ptr es:[di], cl
+
+	shr cx, 1
+	.balign 2, 0x90
+	rep movsw
+	jnc 1f
+	movsb
+1:
+	movsb
+
+	// confirm write
+	mov byte ptr es:[di], 0x29
+
+	// wait for confirmation
+	// CX is 0, so set it to 1
+	inc cx
+	jmp 3f
+
+__bwb_write_slow:
 1:
 	mov byte ptr es:[di], 0xA0
 	movsb
 3:
+	// wait for confirmation
 	nop
 	nop
 	mov al, byte ptr es:[di]
@@ -65,15 +101,15 @@ __bank_write_block_flash_ram:
 	cmp al, byte ptr es:[di]
 	jne 3b
 	loop 1b
-
 9:
 	mov byte ptr es:[di], 0x90
-	mov byte ptr es:[di], 0xF0
+	mov byte ptr es:[di], 0x00
 	retf
-
+	
 __bank_fill_block_flash_ram:
 1:
 	mov byte ptr es:[di], 0xA0
+2:
 	stosb
 3:
 	nop

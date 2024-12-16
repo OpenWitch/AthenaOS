@@ -23,7 +23,7 @@
 // Wrap around ROM indexes to support larger cartridges
 .macro bank_adjust_wraparound_rom_end reg_bx
 #if BIOS_BANK_ROM_FORCE_COUNT > 0
-    or \reg_bx, (0xFFFF - BIOS_BANK_ROM_FORCE_COUNT)
+    or \reg_bx, (0x10000 - BIOS_BANK_ROM_FORCE_COUNT)
 1:
 #endif
 .endm
@@ -61,7 +61,7 @@
 .endm
 
 // bank_get_map/bank_set_map helpers
-#ifdef BIOS_BANK_MAPPER_2003
+#if defined(BIOS_BANK_MAPPER_2003)
 .macro bank_map_dx_unsafe
     add dl, dl
     add dl, 0xD0

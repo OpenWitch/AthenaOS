@@ -3,18 +3,19 @@
 # SPDX-FileContributor: Adrian "asie" Siekierka, 2023
 
 WONDERFUL_TOOLCHAIN ?= /opt/wonderful
+CONFIG ?= config.mk
 TARGET = wswan/small
 include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
 # Configuration
 # -------------
 
-include config.defaults.mk
-include config.mk
-CONFIG_FILES := config.defaults.mk config.mk
+include config/config.defaults.mk
+include $(CONFIG)
+CONFIG_FILES := config/config.defaults.mk $(CONFIG)
 
-NAME_BIOS	:= $(NAME)BIOS-$(VERSION)
-NAME_OS		:= $(NAME)OS-$(VERSION)
+NAME_BIOS	:= $(NAME)BIOS-$(VERSION)-$(FLAVOR)
+NAME_OS		:= $(NAME)OS-$(VERSION)-$(FLAVOR)
 SRC_BIOS	:= bios bios/bank bios/comm bios/disp bios/key bios/sound bios/system bios/text bios/timer bios/util
 SRC_OS		:= os
 
@@ -51,7 +52,8 @@ BIN2S		:= $(WONDERFUL_TOOLCHAIN)/bin/wf-bin2s
 # File paths
 # ----------
 
-BUILDDIR	:= build
+BUILDDIR_SHARED	:= build/shared
+BUILDDIR	:= build/$(FLAVOR)
 DISTDIR		:= dist
 BUILDDIR_BIOS	:= $(BUILDDIR)/$(SRC_BIOS)
 BUILDDIR_OS	:= $(BUILDDIR)/$(SRC_OS)
@@ -60,7 +62,6 @@ ELF_OS		:= $(BUILDDIR)/$(NAME_OS).elf
 MAP_BIOS	:= $(BUILDDIR)/$(NAME_BIOS).map
 MAP_OS		:= $(BUILDDIR)/$(NAME_OS).map
 RAW_BIOS	:= $(DISTDIR)/$(NAME_BIOS).raw
-BIN_BIOS	:= $(DISTDIR)/$(NAME_BIOS).bin
 RAW_OS		:= $(DISTDIR)/$(NAME_OS).raw
 BIN_OS		:= $(DISTDIR)/$(NAME_OS).bin
 
@@ -126,12 +127,7 @@ DEPS		:= $(OBJS:.o=.d)
 
 .PHONY: all clean
 
-all: $(RAW_BIOS) $(RAW_OS) $(BIN_BIOS) $(BIN_OS)
-
-$(BIN_BIOS): $(RAW_BIOS)
-	@echo "  UPDATE  $@"
-	@$(MKDIR) -p $(@D)
-	$(_V)$(PYTHON) tools/convert_update.py $< $@
+all: $(RAW_BIOS) $(RAW_OS) $(BIN_OS)
 
 $(BIN_OS): $(RAW_OS)
 	@echo "  UPDATE  $@"
