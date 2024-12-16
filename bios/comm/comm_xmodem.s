@@ -192,6 +192,20 @@ comm_xmodem_negotiate_receive:
 	// $0003 - Block
 	// $0004 - Block retry
 comm_xmodem_block_receive:
+	cmp word ptr [di + OFS_CURR_BLOCK], 0
+	je 1f
+
+	// If not on first block, send ACK or NAK
+	mov bl, NAK
+	cmp word ptr [di + OFS_STATE], 0x0004
+	je 2f
+	mov bl, ACK
+2:
+	call comm_send_char
+	test ah, ah
+	jnz comm_xmodem_finish_state
+
+1:
 	// Receive SOH or EOT byte
 	call comm_xmodem_receive_char
 	jnz comm_xmodem_finish_state
@@ -242,7 +256,7 @@ comm_xmodem_block_receive:
 	jnz comm_xmodem_finish_state
 	mov ah, al
 
-	ss mov si, [bios_tmp_buffer]
+	mov si, dx
 	mov bl, 0
 1:
 	ss lodsb
@@ -251,7 +265,7 @@ comm_xmodem_block_receive:
 
 	// Compare checksum byte
 	cmp bl, ah
-	jne comm_xmodem_block_receive_nak
+	jne comm_xmodem_block_to_retry_block
 
 	// Write block to bank
 	// Preserve DI, DS, ES
@@ -273,12 +287,6 @@ comm_xmodem_block_receive:
 	pop ds
 	pop di
 	
-	// Send ACK
-	mov bl, ACK
-	call comm_send_char
-	test ah, ah
-	jnz comm_xmodem_finish_state
-
 	jmp comm_xmodem_block_to_block
 
 comm_xmodem_block_receive_to_close:
@@ -294,14 +302,6 @@ comm_xmodem_block_to_close:
 	// ASSUMPTION: AH == 0 (test ah, ah)
 	mov al, 0x05
 	jmp comm_xmodem_finish_state
-
-comm_xmodem_block_receive_nak:
-	// Send NAK
-	mov bl, NAK
-	call comm_send_char
-	test ah, ah
-	jnz comm_xmodem_finish_state
-	jmp comm_xmodem_block_to_retry_block
 
 comm_xmodem_block_send_to_close:
 	// Send EOT

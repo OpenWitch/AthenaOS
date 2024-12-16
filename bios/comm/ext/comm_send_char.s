@@ -54,7 +54,7 @@ comm_send_char:
 
 8:
     // convert __comm_wait_timeout result to error code
-    xchg ah, al
+    mov al, ah
     mov ah, 0x81
 
 9:
