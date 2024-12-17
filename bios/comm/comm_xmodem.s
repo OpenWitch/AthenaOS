@@ -210,7 +210,7 @@ comm_xmodem_block_receive:
 	call comm_xmodem_receive_char
 	jnz comm_xmodem_finish_state
 	cmp al, EOT
-	je comm_xmodem_block_receive_to_close
+	je comm_xmodem_to_close
 	cmp al, SOH
 	jne comm_xmodem_abort
 
@@ -289,25 +289,10 @@ comm_xmodem_block_receive:
 	
 	jmp comm_xmodem_block_to_block
 
-comm_xmodem_block_receive_to_close:
-	// Send NAK
-	mov bl, NAK
-	call comm_send_char
-
-comm_xmodem_block_to_close:
-	test ah, ah
-	jnz comm_xmodem_finish_state
-
+comm_xmodem_to_close:
 	// -> Close
-	// ASSUMPTION: AH == 0 (test ah, ah)
-	mov al, 0x05
+	mov ax, 0x05
 	jmp comm_xmodem_finish_state
-
-comm_xmodem_block_send_to_close:
-	// Send EOT
-	mov bl, EOT
-	call comm_send_char
-	jmp comm_xmodem_block_to_close
 
 comm_xmodem_block:
 	test byte ptr [di + OFS_MODE], 0x01
@@ -317,7 +302,7 @@ comm_xmodem_block_send:
 	// Check transfer size
 	mov ax, [di + OFS_CURR_BLOCK]
 	cmp ax, [di + OFS_BLOCK_COUNT]
-	jae comm_xmodem_block_send_to_close
+	jae comm_xmodem_to_close
 
 	// Read block from bank
 	// Preserve DI, DS, ES
@@ -429,26 +414,26 @@ comm_xmodem_close_send:
 	mov bl, EOT
 	call comm_send_char
 	call comm_xmodem_receive_char
+	jnz comm_xmodem_finish_state
+	// If it's not ACK, stay in Close state
+	cmp al, ACK
+	jne comm_xmodem_to_close
 
 comm_xmodem_close_to_done:
-	test ah, ah
-	jnz comm_xmodem_finish_state
-
 	// -> Done
 	// ASSUMPTION: AH == 0 (test ah, ah)
 	mov al, 0x07
 	jmp comm_xmodem_finish_state
 
 comm_xmodem_close_receive:
-	// Receive EOT, send ACK
-	call comm_xmodem_receive_char
-	jnz comm_xmodem_finish_state
-	// ASSUMPTION: AH == 0 (test ah, ah)
-	cmp al, EOT
-	jne comm_xmodem_abort
-
+	// While some XMODEM implementations send NAK first to detect false EOTs,
+	// TransMagic considers a NAK response to EOT an unrecoverable error.
+	// As such, respond to EOT with ACK
 	mov bl, ACK
 	call comm_send_char
+	test ah, ah
+	jnz comm_xmodem_finish_state
+
 	jmp comm_xmodem_close_to_done
 
 	// $0008 - Erase bank
