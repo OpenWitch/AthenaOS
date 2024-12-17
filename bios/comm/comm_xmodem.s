@@ -256,7 +256,7 @@ comm_xmodem_block_receive:
 	jnz comm_xmodem_finish_state
 	mov ah, al
 
-	mov si, dx
+	ss mov si, [bios_tmp_buffer]
 	mov bl, 0
 1:
 	ss lodsb

@@ -38,7 +38,6 @@
     .global comm_receive_block
 comm_receive_block:
     push cx
-    push dx
     push di
     push es
     push ds
@@ -64,7 +63,6 @@ comm_receive_block:
 9:
     pop es
     pop di
-    pop dx
     pop cx
     ret
 
