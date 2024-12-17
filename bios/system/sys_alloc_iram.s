@@ -43,9 +43,9 @@ sys_alloc_iram:
     push si
     push di
 
-    // word align all alocations
-    inc cx
-    and cl, 0xFE
+    // All allocations are 16-byte aligned.
+    // TODO: This is wasteful, but good enough to run.
+    add cx, 15
 
     // DX = handle to set
     mov dx, [bp + IRQ_TABLE_HANDLER_CS_OFFSET]
@@ -137,6 +137,10 @@ sys_alloc_iram:
 
     test bx, bx
     jz 9f
+
+    // Align pointer to 16 bytes
+    add ax, 15
+    and ax, 0xFFF0
 
     // Store pointer in IRAM
     mov ss:[bx], ax
