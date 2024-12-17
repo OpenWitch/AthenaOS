@@ -27,26 +27,29 @@
 #include "common.inc"
 
 __rtc_read_byte:
+1:
     in al, 0xCA
     test al, 0x80
-    jz __rtc_read_byte
+    jz 1b
     in al, 0xCB
     ret
 
 __rtc_write_byte:
     push ax
+1:
     in al, 0xCA
     test al, 0x80
-    jz __rtc_write_byte
+    jz 1b
     pop ax
     out 0xCB, al
     ret
     
 __rtc_write_ctrl:
     push ax
+1:
     in al, 0xCA
     test al, 0x80
-    jz __rtc_write_ctrl
+    jz 1b
     pop ax
     out 0xCA, al
     ret
