@@ -34,10 +34,11 @@
  */
     .global sys_interrupt_reset_hook
 sys_interrupt_reset_hook:
-    // if pointer == 0, clear instead
+    // If pointer == 0, clear instead
     test bx, bx
     jz 1f
-    // set interrupt hook to DS:BX
+
+    // Set interrupt hook to DS:BX
     push bx
     push dx
     mov dx, bx
@@ -48,7 +49,20 @@ sys_interrupt_reset_hook:
     ret
 
 1:
-    // clear interrupt hook
+    // Disable interrupt in mask
+    push ax
+    mov cl, al
+    mov al, 1
+    shl al, cl
+    not al
+    mov cl, al
+    in al, IO_HWINT_ENABLE
+    and al, cl
+    or al, BIOS_REQUIRED_IRQ_MASK
+    out IO_HWINT_ENABLE, al
+    pop ax
+
+    // Clear interrupt hook
     push ax
     // BP = ((AX - 0x100) << 3) + hw_irq_hook_table
     shl ax, 3

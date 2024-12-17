@@ -42,6 +42,17 @@ sys_interrupt_set_hook:
     push ds
     push es
 
+    // Enable interrupt in mask
+    push ax
+    mov cl, al
+    mov al, 1
+    shl al, cl
+    mov cl, al
+    in al, IO_HWINT_ENABLE
+    or al, cl
+    out IO_HWINT_ENABLE, al
+    pop ax
+
     // AH:AL = 00nn
     shl ax, 3
     add ax, offset hw_irq_hook_table

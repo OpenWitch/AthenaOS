@@ -83,7 +83,7 @@ _start:
 	mov al, 0x28
 	out IO_HWINT_VECTOR, al
 	// Enable VBlank interrupt by default
-	mov al, HWINT_VBLANK
+	mov al, BIOS_REQUIRED_IRQ_MASK
 	out IO_HWINT_ENABLE, al
 	sti
 

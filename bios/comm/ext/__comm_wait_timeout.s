@@ -42,7 +42,6 @@
 __comm_wait_timeout:
     pushf
     push dx
-    sti
 
     ss mov dx, [tick_count]
     add dx, cx // DX = final tick count
@@ -62,6 +61,11 @@ __comm_wait_timeout:
     jle 7f // timeout?
 
 2:
+    // Enable interrupts
+    // As we could be calling a send/receive function from an IRQ, this has to
+    // be done after the data being present is ruled out.
+    sti
+
     // check for cancel key
     ss mov ax, [comm_cancel_key]
     test ax, ax

@@ -41,8 +41,8 @@ irq_system_handlers:
     .word sys_get_ownerinfo
     .word sys_suspend
     .word sys_resume
-    .word sys_set_remote
-    .word sys_get_remote
+    .word error_handle_irq23 // TODO: sys_set_remote
+    .word error_handle_irq23 // TODO: sys_get_remote
     .word sys_alloc_iram
     .word sys_free_iram
     .word sys_get_my_iram
@@ -55,7 +55,3 @@ irq_system_handlers:
 irq_system_handler:
 	m_irq_table_handler irq_system_handlers, 22, 0, error_handle_irq23
 	iret
-
-    .section ".bss"
-    .global sys_remote_unk
-sys_remote_unk: .word 0
