@@ -53,7 +53,6 @@ _start:
 	// clear interrupt vectors
 	mov di, ax
 	mov cx, 0x40
-	mov ax, cs
 1:
 	mov ax, offset "error_handle_generic"
 	stosw // offset
@@ -65,7 +64,8 @@ _start:
 	mov di, (0x28 * 4)
 	mov si, offset "irq_handlers_28"
 	mov cx, offset ((irq_handlers_28_end - irq_handlers_28) >> 1)
-	mov ax, cs
+	// already set above
+	// mov ax, cs
 1:
 	movsw // offset
 	stosw // segment

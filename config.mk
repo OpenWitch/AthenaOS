@@ -40,9 +40,10 @@
 # Select the RTC provided by the cartridge.
 #
 # Available options:
-# - none - no RTC provided, emulation stub used instead
+# - none - no RTC provided, stub used instead
+# - s3511a - S-3511A compatible RTC provided via a 2003-like interface (port 0xCA/0xCB)
 
-# BIOS_TIMER_RTC := none
+# BIOS_TIMER_RTC := s3511a
 
 # == BIOS / Fonts ==
 

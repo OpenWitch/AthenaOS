@@ -43,21 +43,14 @@ transform_name_to_ascii_table:
 transform_none:
     ret
 
-transform_bcd8_al:
-    mov ah, al
-    shr ah, 4     // AH = upper digit
-    and al, 0x0F  // AL = lower digit
-    aad // AL = (AL + (AH * 10))
-    ret
-
     // transform one 16-bit BCD number to int
 transform_bcd16:
     push ax
-    call transform_bcd8_al
+    call __bcd_to_bin_al
     mov bx, ax
     pop ax
     mov al, ah
-    call transform_bcd8_al
+    call __bcd_to_bin_al
     // AX = lower 0-99, BX = upper 0-99
     imul bx, 100 // BX = BX * 100
     add ax, bx
@@ -66,11 +59,11 @@ transform_bcd16:
     // transform two 8-bit BCD numbers to int
 transform_bcd8:
     push ax
-    call transform_bcd8_al
+    call __bcd_to_bin_al
     mov bl, al
     pop ax
     mov al, ah
-    call transform_bcd8_al
+    call __bcd_to_bin_al
     mov ah, al
     mov al, bl
     ret
