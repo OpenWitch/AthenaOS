@@ -110,9 +110,9 @@ error_handle_start:
 	xor ax, ax // Initialize screen
 	int 0x13
 
-	in al, 0x60
+	in al, IO_SYSTEM_CTRL2
 	and al, 0x9F
-	out 0x60, al
+	out IO_SYSTEM_CTRL2, al
 	ss mov word ptr [0xFE00], 0x0FFF
 	ss mov word ptr [0xFE06], 0x0000
 

@@ -94,28 +94,28 @@ _start:
 
 	// initialize LCD shade LUT
 	mov ax, 0x6420
-	out 0x1C, ax
+	out IO_LCD_SHADE_01, ax
 	mov ax, 0xFCA8
-	out 0x1E, ax
+	out IO_LCD_SHADE_45, ax
 
 	// initialize default palette
 	mov ax, 0x7530
-	out 0x20, ax
+	out IO_SCR_PAL_0, ax
 	mov ax, 0x0357
-	out 0x22, ax
+	out IO_SCR_PAL_1, ax
 
 	// boot in JPN2 mode by default
 	mov al, 0x07
-	out 0x04, al
+	out IO_SPR_BASE, al
 	mov al, 0x32
-	out 0x07, al
+	out IO_SCR_BASE, al
 	mov ah, 0x02
 	mov bl, 1
 	int 0x13
 	xor ax, ax
 	int 0x13
 	mov al, 0x02
-	out 0x00, al
+	out IO_DISPLAY_CTRL, al
 
 	// initialize sound system
 	call sound_init

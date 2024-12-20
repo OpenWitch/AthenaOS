@@ -28,30 +28,30 @@
 
 __rtc_read_byte:
 1:
-    in al, 0xCA
-    test al, 0x80
+    in al, IO_CART_RTC_CTRL
+    test al, CART_RTC_READY
     jz 1b
-    in al, 0xCB
+    in al, IO_CART_RTC_DATA
     ret
 
 __rtc_write_byte:
     push ax
 1:
-    in al, 0xCA
-    test al, 0x80
+    in al, IO_CART_RTC_CTRL
+    test al, CART_RTC_READY
     jz 1b
     pop ax
-    out 0xCB, al
+    out IO_CART_RTC_DATA, al
     ret
     
 __rtc_write_ctrl:
     push ax
 1:
-    in al, 0xCA
-    test al, 0x80
+    in al, IO_CART_RTC_CTRL
+    test al, CART_RTC_READY
     jz 1b
     pop ax
-    out 0xCA, al
+    out IO_CART_RTC_CTRL, al
     ret
 
 /**

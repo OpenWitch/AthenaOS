@@ -108,8 +108,8 @@ sys_get_ownerinfo:
     
     // DX = command
     mov dx, 0x0180
-    in al, 0x60
-    test al, 0x80
+    in al, IO_SYSTEM_CTRL2
+    test al, SYSTEM_CTRL2_COLOR
     jz 1f
     shl dx, 4 // shift left by 4 for WSC
 1:
