@@ -151,12 +151,13 @@ hw_irq_vblank_handler:
 9:
     // === USER IRQ ROUTINE ===
 
+    pop ds
+    pop cx
+    
     mov al, HWINT_VBLANK
     mov bx, offset (hw_irq_hook_table + (HWINT_IDX_VBLANK * 8))
     call irq_wrap_routine
 
-    pop ds
-    pop cx
     pop bx
     pop ax
     iret

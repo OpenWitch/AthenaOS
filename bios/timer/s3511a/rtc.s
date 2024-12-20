@@ -110,7 +110,7 @@ rtc_get_datetime_struct:
     
 
 /**
- * TODO: INT 16h AH=05h - rtc_enable_alarm
+ * INT 16h AH=05h - rtc_enable_alarm
  * Input:
  * - BL = Alarm hour
  * - BH = Alarm minute
@@ -118,15 +118,65 @@ rtc_get_datetime_struct:
  */
     .global rtc_enable_alarm
 rtc_enable_alarm:
-    // Fall through to RET
+    push ax
+    // Write alarm time
+    mov al, 0x18
+    call __rtc_write_ctrl
+    // Write alarm hour
+    mov al, bl
+    call __bin_to_bcd_al
+    and al, 0x3F
+    call __rtc_write_byte
+    // Write alarm minute
+    mov al, bh
+    call __bin_to_bcd_al
+    call __rtc_write_byte
+    // Write status
+    mov al, 0x12
+    call __rtc_write_ctrl
+    mov al, (RTC_STATUS_INT_ALARM | RTC_STATUS_24_HOUR)
+    call __rtc_write_byte
+    pop ax
+    ret
 
+    .global rtc_init
+rtc_init:
+    push ax
+    // Read status
+    mov al, 0x13
+    call __rtc_write_ctrl
+    call __rtc_read_byte
+
+    // Was power loss detected?
+    test al, RTC_STATUS_POWER_LOST
+    jnz 1f
+    pop ax
+    ret
 /**
- * TODO: INT 16h AH=06h - rtc_disable_alarm
+ * INT 16h AH=00h - rtc_reset
+ * Input:
+ * Output:
+ */
+    .global rtc_reset
+rtc_reset:
+    push ax
+1:
+    // Reset
+    mov al, 0x10
+    call __rtc_write_ctrl
+    pop ax
+/**
+ * INT 16h AH=06h - rtc_disable_alarm
  * Input:
  * Output:
  */
     .global rtc_disable_alarm
 rtc_disable_alarm:
-    // Fall through to RET
-
+    push ax
+    // Write status
+    mov al, 0x12
+    call __rtc_write_ctrl
+    mov al, (RTC_STATUS_24_HOUR)
+    call __rtc_write_byte
+    pop ax
     ret

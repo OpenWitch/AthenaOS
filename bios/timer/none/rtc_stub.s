@@ -27,6 +27,11 @@
 #include "common.inc"
 
 /**
+ * INT 16h AH=00h - rtc_reset
+ */
+    .global rtc_init
+    .global rtc_reset
+/**
  * INT 16h AH=01h - rtc_set_datetime
  * Input:
  * - BX = Field
@@ -38,6 +43,8 @@ rtc_set_datetime:
     jae 1f
     ss mov [rtc_data + bx], cl
 1:
+rtc_init:
+rtc_reset:
     ret
 
 /**

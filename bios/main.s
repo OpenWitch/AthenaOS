@@ -118,8 +118,10 @@ _start:
 	out 0x00, al
 
 	// initialize sound system
-	xor ax, ax
-	int 0x15
+	call sound_init
+
+	// initialize timer
+	call rtc_init
 
 	// jump to OS
 	jmp 0xE000:0x0000
