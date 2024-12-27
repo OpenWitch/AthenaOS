@@ -100,6 +100,11 @@ SECTIONS
 	}
 
 	/* ROM footer */
+	.footer_athena . : AT(0xFFFE0)
+	{
+		KEEP(*(.footer_athena))
+	}
+
 	.footer . : AT(0xFFFF0)
 	{
 		KEEP(*(.footer))

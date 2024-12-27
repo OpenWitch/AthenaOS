@@ -14,6 +14,7 @@ include config/config.defaults.mk
 include $(CONFIG)
 CONFIG_FILES := config/config.defaults.mk $(CONFIG)
 
+VERSION		?= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 NAME_BIOS	:= $(NAME)BIOS-$(VERSION)-$(FLAVOR)
 NAME_OS		:= $(NAME)OS-$(VERSION)-$(FLAVOR)
 SRC_BIOS	:= bios bios/bank bios/comm bios/disp bios/key bios/sound bios/system bios/text bios/timer bios/util
@@ -24,6 +25,9 @@ SRC_OS		:= os
 
 SRC_BIOS    += bios/comm/$(BIOS_COMM_DRIVER)
 SRC_BIOS    += bios/timer/$(BIOS_TIMER_RTC)
+DEFINES     += -DATHENA_VERSION_MAJOR=$(VERSION_MAJOR)
+DEFINES     += -DATHENA_VERSION_MINOR=$(VERSION_MINOR)
+DEFINES     += -DATHENA_VERSION_PATCH=$(VERSION_PATCH)
 DEFINES     += -DATHENA_FLAVOR_$(FLAVOR)
 DEFINES     += -DBIOS_BANK_MAPPER_$(BIOS_BANK_MAPPER)
 DEFINES		+= -DBIOS_BANK_ROM_FORCE_COUNT=$(BIOS_BANK_ROM_FORCE_COUNT)

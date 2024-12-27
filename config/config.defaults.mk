@@ -8,7 +8,9 @@ BIOS_COMM_DRIVER := ext
 BIOS_TIMER_RTC := s3511a
 
 NAME := Athena
-VERSION := 0.0.1
+VERSION_MAJOR := 0
+VERSION_MINOR := 1
+VERSION_PATCH := 0
 FLAVOR := ww
 
 BIOS_FONT_ANK  := fonts/font_ank.png

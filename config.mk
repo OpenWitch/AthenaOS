@@ -72,10 +72,6 @@
 
 # NAME := Athenaaa
 
-# Define the project version.
-
-# VERSION := custom
-
 # Define the project flavor, used for distinguishing builds from each other.
 
 # FLAVOR := custom

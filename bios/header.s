@@ -32,6 +32,16 @@ header:
 	// WonderWitch ROM detection (=> enabling flash memory) by emulators.
 	.byte 'E', 'L', 'I', 'S', 'A'
 
+	.section .footer_athena, "a"
+footer_athena:
+	.byte 'A'
+	.byte 'T'
+	.byte 'H'
+	.byte 'B'
+	.byte ATHENA_VERSION_MAJOR
+	.byte ATHENA_VERSION_MINOR
+	.byte ATHENA_VERSION_PATCH
+
 	.section .footer, "a"
 footer:
 	.byte 0xEA
