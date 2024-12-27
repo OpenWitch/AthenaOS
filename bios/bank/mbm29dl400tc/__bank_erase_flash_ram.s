@@ -34,6 +34,9 @@
 	.section ".text"
     .global __bank_erase_flash_ram
 __bank_erase_flash_ram:
+	mov ax, 0x1000
+	mov ds, ax
+
 	mov bx, 0xAAA
 	mov si, 0x555
 
@@ -55,6 +58,7 @@ __bank_erase_flash_ram:
 	nop
 	cmp al, byte [bx] // DQ2 and/or DQ6 toggles if status register
 	jne 1b
+9:
 	retf
     
     .global __bank_erase_flash_ram_size

@@ -34,9 +34,9 @@
 	.section ".text"
     .global __bank_erase_flash_ram
 __bank_erase_flash_ram:
-	// This chip uses 128KB sectors - only erase even banks
-	test bl, 1
-	jnz 9f
+	// Note that this chip uses 128KB sectors.
+	mov ax, 0x1000
+	mov ds, ax
 
 	mov bx, 0xAAA
 	mov si, 0x555
