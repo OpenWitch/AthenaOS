@@ -133,9 +133,13 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean
+.PHONY: all bios os clean
 
-all: $(RAW_BIOS) $(RAW_OS) $(BIN_OS)
+all: bios os
+
+bios: $(RAW_BIOS)
+
+os: $(RAW_OS) $(BIN_OS)
 
 $(BIN_OS): $(RAW_OS)
 	@echo "  UPDATE  $@"
