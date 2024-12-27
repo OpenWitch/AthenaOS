@@ -26,42 +26,74 @@
 
 #include "common.inc"
 
-	.align 2
-irq_system_handlers:
-	.word sys_interrupt_set_hook
-	.word sys_interrupt_reset_hook
-    .word sys_wait
-    .word sys_get_tick_count
-    .word sys_sleep
-    .word sys_set_sleep_time
-    .word sys_get_sleep_time
-    .word sys_set_awake_key
-    .word sys_get_awake_key
-    .word sys_set_keepalive_int
-    .word sys_get_ownerinfo
-    .word sys_suspend
-    .word sys_resume
-    .word error_handle_irq23 // TODO: sys_set_remote
-    .word error_handle_irq23 // TODO: sys_get_remote
-    .word sys_alloc_iram
-    .word sys_free_iram
-    .word sys_get_my_iram
-    .word sys_get_version
-    .word error_handle_irq23 // TODO: sys_swap
-    .word sys_set_resume
-    .word sys_get_resume
+/**
+ * INT 17h AH=04h - sys_sleep
+ * Input:
+ * Output:
+ */
+	.global sys_sleep
+sys_sleep:
+    pusha
 
-	.global irq_system_handler
-irq_system_handler:
-	m_irq_table_handler irq_system_handlers, 22, 0, error_handle_irq23
-	iret
+    push ds
+    push ss
+    pop ds
 
-    .section ".data"
-	.global sys_keepalive_int
-sys_keepalive_int: .byte HWINT_KEY
+    // BL = old interrupt mask
+    in al, IO_HWINT_ENABLE
+    mov bl, al
 
-	.section ".bss"
-	.global sys_awake_key
-sys_awake_key: .word 0
-	.global sys_sleep_time
-sys_sleep_time: .byte 0
+    // Sleep until VBlank
+    // TODO: Is this necessary?
+    mov al, HWINT_VBLANK
+    // out IO_HWINT_ACK, al
+    out IO_HWINT_ENABLE, al
+    hlt
+    nop
+    // out IO_HWINT_ACK, al
+
+    // Turn off LCD panel
+    in al, IO_LCD_CTRL
+    // BH = old LCD control
+    mov bh, al
+    or al, LCD_SLEEP_MASK
+    out IO_LCD_CTRL, al
+
+    // Sleep given provided mask
+    mov al, [sys_keepalive_int]
+
+    // out IO_HWINT_ACK, al
+    out IO_HWINT_ENABLE, al
+1:
+    hlt
+    nop
+    // out IO_HWINT_ACK, al
+
+    call __key_scan
+    mov ax, cx
+    test ax, ax
+    jz 1b
+    and ax, [sys_awake_key]
+    cmp ax, [sys_awake_key]
+    jne 1b
+
+    // Sleep until VBlank
+    // TODO: Is this necessary?
+    mov al, HWINT_VBLANK
+    // out IO_HWINT_ACK, al
+    out IO_HWINT_ENABLE, al
+    hlt
+    nop
+    // out IO_HWINT_ACK, al
+
+    // Restore LCD panel control
+    mov al, bh
+    out IO_LCD_CTRL, al
+    // Restore interrupt mask
+    mov al, bl
+    out IO_HWINT_ENABLE, al
+
+    pop ds
+
+    popa
+    ret

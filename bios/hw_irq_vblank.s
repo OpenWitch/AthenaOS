@@ -44,26 +44,7 @@ hw_irq_vblank_handler:
     // === KEY PRESS HANDLER ===
 
     // Scan key presses
-    mov al, 0x10
-    out IO_KEY_SCAN, al
-    daa
-    in  al, IO_KEY_SCAN
-    and al, 0x0F
-    mov ch, al
-
-    mov al, 0x20
-    out IO_KEY_SCAN, al
-    daa
-    in  al, IO_KEY_SCAN
-    shl al, 4
-    mov cl, al
-
-    mov al, 0x40
-    out IO_KEY_SCAN, al
-    daa
-    in  al, IO_KEY_SCAN
-    and al, 0x0F
-    or  cl, al
+    call __key_scan
 
     // Update key variables
     mov ax, word ptr [keys_held]
