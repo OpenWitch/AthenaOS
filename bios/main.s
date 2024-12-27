@@ -50,7 +50,16 @@ _start:
 	xor ax, ax
 	rep stosw
 
-	// clear interrupt vectors
+#if BIOS_BANK_ROM_FORCE_DYNAMIC
+	// Intiialize bank_rom_offset
+	mov ah, 0xFF
+	in al, IO_BANK_ROM_LINEAR
+	shl ax, 4
+	or al, 0x08
+	ss mov bank_rom_offset, ax
+#endif
+
+	// Clear interrupt vectors
 	mov di, ax
 	mov cx, 0x40
 1:
@@ -60,7 +69,7 @@ _start:
 	stosw // segment
 	loop 1b
 
-	// write interrupt vectors
+	// Write interrupt vectors
 	mov di, (0x28 * 4)
 	mov si, offset "irq_handlers_28"
 	mov cx, offset ((irq_handlers_28_end - irq_handlers_28) >> 1)

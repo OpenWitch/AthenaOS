@@ -22,7 +22,13 @@
 
 // Wrap around ROM indexes to support larger cartridges
 .macro bank_adjust_wraparound_rom_end reg_bx
+#if BIOS_BANK_ROM_FORCE_DYNAMIC
 #if BIOS_BANK_ROM_FORCE_COUNT > 0
+    and \reg_bx, (BIOS_BANK_ROM_FORCE_COUNT - 1)
+#endif
+    ss or \reg_bx, [bank_rom_offset]
+1:
+#elif BIOS_BANK_ROM_FORCE_COUNT > 0
     or \reg_bx, (0x10000 - BIOS_BANK_ROM_FORCE_COUNT)
 1:
 #endif

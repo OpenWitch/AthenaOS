@@ -43,3 +43,9 @@ irq_bank_handlers:
 irq_bank_handler:
 	m_irq_table_handler irq_bank_handlers, 10, (M_IRQ_PUSH_BX | M_IRQ_PUSH_CX | M_IRQ_PUSH_DX | M_IRQ_PUSH_SI | M_IRQ_PUSH_DI | M_IRQ_PUSH_DS | M_IRQ_PUSH_ES), error_handle_irq24
 	iret
+
+	.section ".bss"
+#if BIOS_BANK_ROM_FORCE_DYNAMIC
+	.global bank_rom_offset
+bank_rom_offset: .word 0
+#endif
