@@ -29,44 +29,30 @@
 // Scary...
 
 #define FLAG_HEX        0x01
-#define FLAG_PAD_SPACES 0x00
 #define FLAG_PAD_ZEROES 0x02
 #define FLAG_ALIGN_LEFT 0x04
 #define FLAG_SIGNED     0x08
-#define FLAG_DS_SI      0x80
+#define FLAG_DS_BX      0x80
+#define NUMBER_BUFFER_SIZE 8
 
 text_num_table:
-    .byte '0', '1', '2', '3', '4', '5', '6' ,'7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+	.byte '0', '1', '2', '3', '4', '5', '6' ,'7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 
-text_num_put_char_or_memory:
-    test ax, ax // character == 0?
-    jz .return
-
-.wrap_put_char:
-    test ch, FLAG_DS_SI
-    jz 1f
-    // write to DS:SI
-    mov [si], al
-    inc si
-    ret
-
+__tpn_put:
+	test ch, FLAG_DS_BX
+	jz 1f
+	// write to DS:BX
+	mov [bx], al
+	jmp 2f
 1:
-    // write to display
-    push cx
-    mov cx, ax
-    call text_put_char
-    pop cx
-    inc bl
-
-.return:
-    ret
-
-text_num_put_signed:
-    push ax
-    mov ax, '-'
-    call .wrap_put_char
-    pop ax
-    ret
+	// write to display
+	push cx
+	mov cx, ax
+	call text_put_char
+	pop cx
+2:
+	inc bx
+	ret
 
 /**
  * INT 13h AH=07h - text_put_numeric
@@ -81,139 +67,135 @@ text_num_put_signed:
  *   - bit 3: treat number as signed instead of unsigned
  *   - bit 7: use DS:SI as output buffer instead of screen
  * - DX = number
- * - DS:SI = buffer, optional
+ * - DS:BX = buffer, optional
  * Output:
  */
-    .global text_put_numeric
+	.global text_put_numeric
 text_put_numeric:
-    push bx
-    push cx
-    push dx
-    push si
-    push di
-    push bp
-    mov bp, sp
+	test ch, FLAG_HEX
+	jz 1f
+	and ch, ~(FLAG_ALIGN_LEFT | FLAG_SIGNED)
+	or ch, (FLAG_PAD_ZEROES)
+1:
+	// Allocate stack space
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	push bp
+	mov bp, sp
+	sub sp, NUMBER_BUFFER_SIZE
 
-    mov ax, dx // AX = number
+	// Handle signed flag
+	// After this, FLAG_SIGNED reflects if we should add the '-' character,
+	// and DX is an unsigned number
+	test ch, FLAG_SIGNED
+	jz __tpn_no_signed
+	test dh, 0x80
+	jz __tpn_number_unsigned
+__tpn_number_signed:
+	// convert to unsigned - we'll re-add the sign later
+	neg dx
+	jmp __tpn_no_signed
+__tpn_number_unsigned:
+	and ch, ~FLAG_SIGNED
+__tpn_no_signed:
 
-    mov di, bp // DI = end
-    sub sp, 8
+	// Write number to buffer
+	mov di, bp // DI = end of number buffer
+	mov ax, dx // AX = number
+	xor dx, dx
+__tpn_buffer_number_loop:
+	test ch, FLAG_HEX
+	jz __tpn_buffer_number_div_dec
+__tpn_buffer_number_div_hex:
+	// Extract hex digit
+	mov dl, al
+	and dl, 0x0F
+	shr ax, 4
+	jmp __tpn_buffer_number_div_end
+__tpn_buffer_number_div_dec:
+	// Extract decimal digit
+	mov si, 10 // SI = divisor used by decimal extraction
+	xor dx, dx
+	div si
+__tpn_buffer_number_div_end:
+	// DH = 0
+	// DL = number % n
+	// AX = number / n
+	mov si, dx
+	dec bp // BP = (eventually) start of number buffer
+	// Write character to number buffer
+	cs mov dl, [text_num_table + si]
+	mov [bp], dl
+	test ax, ax
+	jnz __tpn_buffer_number_loop
 
-    test ch, FLAG_SIGNED
-    jz .no_signed
-    // if signed, clear if number not signed
-    test ah, 0x80
-    jz .not_signed
-    // convert to unsigned - we'll re-add the sign later
-    neg ax
-    jmp .no_signed
-.not_signed:
-    and ch, ~FLAG_SIGNED
-.no_signed:
+	// Add '-' character
+	test ch, FLAG_SIGNED
+	jz 5f
+	dec bp
+	mov byte ptr [bp], '-'
+5:
 
-    // convert to string
-    push bx
+	// DX = actual string length, BP = string start
+	sub di, bp
+	mov dx, di
 
-.loop:
-    test ch, FLAG_HEX
-    jz .div_deca
-    mov dx, ax
-    and dx, 0x000F
-    shr ax, 4
-    jmp .div_end
-.div_deca:
-    xor dx, dx
-    mov bx, 10
-    div bx
-    // DX = number % n
-    // AX = number / n
-.div_end:
-    mov bx, dx
-    dec bp
-    mov dl, cs:[text_num_table + bx]
-    mov [bp], dl
+	// AX = written byte count
+	// (always max(width, actual string length)
+	mov ax, dx
+	cmp al, cl
+	ja 5f
+	xor ax, ax
+	mov al, cl
+5:
+	push ax
 
-    test ax, ax
-    jnz .loop
+	// Handle alignment
+	test ch, FLAG_ALIGN_LEFT // Is left-aligned? (no alignment)
+	jnz __tpn_align_end
+	cmp cl, dl // Is width <= string length?
+	jbe __tpn_align_end // (always true if width == 0)
 
-    pop bx
-    push bx
-    // end convert to string
+	// CL = bytes to pad
+	sub cl, dl
+	push ax
+	// AL = padding character
+	test ch, FLAG_PAD_ZEROES
+	mov al, ' '
+	jz 5f
+4:
+	mov al, '0'
+5:
+	call __tpn_put
+	dec cl
+	jnz 5b
+	pop ax
+__tpn_align_end:
 
-    sub di, bp
-    mov dx, di // DX = actual string length, BP = string start
+__tpn_write_loop:
+	// BP = first character to write, DL = characters to write
+	mov al, [bp]
+	call __tpn_put
+	inc bp
+	dec dl
+	jnz __tpn_write_loop
 
-    xor ax, ax // AX (pushed) = written byte count
+	// Write NUL character
+	test ch, FLAG_DS_BX
+	jz 5f
+	mov byte ptr [bx], 0
+5:
 
-    // handle alignment
-    test cl, cl // is length provided?
-    jz .align_end
-    push cx
-    test ch, FLAG_ALIGN_LEFT // no alignment if left-aligned
-    jnz .align_put_signed
+	pop ax
+	add sp, NUMBER_BUFFER_SIZE
 
-    cmp cl, dl
-    jle .align_put_signed // no alingment if width <= string length
-
-    sub cl, dl
-
-    test ch, FLAG_PAD_ZEROES
-    jnz .align_padzero
-    test ch, FLAG_SIGNED
-    mov ch, ' '             // pad with spaces - sign comes last
-    jz .align_pad
-    dec cl
-    jmp .align_pad
-
-.align_padzero:
-    test ch, FLAG_SIGNED
-    jz .align_padzero_unsigned
-    call text_num_put_signed    // pad with zeroes - sign comes first
-    dec cl
-.align_padzero_unsigned:
-    mov ch, '0'
-.align_pad:
-    push ax
-    mov al, ch      // AH is already clear
-    call text_num_put_char_or_memory
-    pop ax
-    dec cl
-    jnz .align_pad
-
-.align_put_signed:
-    cmp ch, '0'
-    pop cx
-    je .align_end // pad with zeroes - sign comes first
-    test ch, FLAG_SIGNED
-    jz .align_end
-    call text_num_put_signed
-
-.align_end:
-    mov cx, dx
-    add ax, dx
-    push ax
-    xor ax, ax
-.write_number_loop:
-    mov al, [bp]      // AH is already clear
-    call text_num_put_char_or_memory
-    inc bp
-    loop .write_number_loop
-
-    xor ax, ax
-    call text_num_put_char_or_memory
-    pop ax
-
-    pop ax // AL = starting X position
-    add sp, 8
-
-    sub bl, al
-    xor ax, ax
-    mov al, bl // AL = characters written
-
-    pop bp
-    pop di
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    ret
+	pop bp
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	ret
