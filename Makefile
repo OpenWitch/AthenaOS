@@ -149,7 +149,7 @@ $(BIN_OS): $(RAW_OS)
 $(RAW_BIOS): $(ELF_BIOS)
 	@echo "  OBJCOPY $@"
 	@$(MKDIR) -p $(@D)
-	$(_V)$(OBJCOPY) -O binary $< $@
+	$(_V)$(OBJCOPY) -O binary --gap-fill 0xFF $< $@
 
 $(RAW_OS): $(ELF_OS)
 	@echo "  OBJCOPY $@"
