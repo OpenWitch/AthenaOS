@@ -28,5 +28,4 @@
 
 	.global irq_exit_handler
 irq_exit_handler:
-    // Exit FreyaBIOS. TODO
-    jmp 0xffff:0x0000
+	jmp 0xffff:0x0000
