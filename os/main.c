@@ -38,6 +38,8 @@ int main(void) {
     pcb->ilib = MK_FP(_CS, &il_ilib);
     pcb->proc = MK_FP(_CS, &il_proc);
     pcb->cwd[0] = 0;
+    uint32_t resource_bytes = *((uint32_t __far*) MK_FP(PROGRAM_SEGMENT - 4, 60));
+    pcb->resource = MK_FP(PROGRAM_SEGMENT + (resource_bytes >> 4), resource_bytes & 0xF);
 
     proc_run(MK_FP(PROGRAM_SEGMENT, main_func_ofs), 0, NULL);
 

@@ -29,8 +29,25 @@ void __far* proc_load(const char __far* cmdline) {
 
 ILIB_FUNCTION
 int proc_run(void __far* entrypoint, int argc, const char __far* __far* argv) {
-    // TODO: Handle argc/argv
-    ((proc_func_entrypoint_t) entrypoint)();
+    // Copy argv
+    char **local_argv = CURRENT_PCB->argv;
+    char *local_arg = (char*) (local_argv + argc);
+    for (int i = 0; i < argc; i++) {
+        *(local_argv++) = local_arg;
+        if (argv != NULL && argv[i] != NULL) {
+            const char __far* arg = argv[i];
+            while (*arg) {
+                *(local_arg++) = *(arg++);
+            }
+        }
+        *(local_arg++) = 0;
+    }
+    if ((uint16_t) CURRENT_PCB->heap < (uint16_t) CURRENT_PCB->argv) {
+        CURRENT_PCB->heap = CURRENT_PCB->argv;
+    }
+
+    // Run entrypoint
+    ((proc_func_entrypoint_t) entrypoint)(argc, CURRENT_PCB->argv);
     return 0;
 }
 
