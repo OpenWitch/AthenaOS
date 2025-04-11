@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, 2024 Adrian "asie" Siekierka
+ * Copyright (c) 2025 Adrian "asie" Siekierka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,43 +20,51 @@
  * SOFTWARE.
  */
 
-#ifndef _COMMON_H
-#define _COMMON_H
+#include "common.h"
 
-#ifndef __ASSEMBLER__
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <sys/bios.h>
-#endif
+ILIB_FUNCTION
+void __far* proc_load(const char __far* cmdline) {
+    return NULL;
+}
 
-#include <wonderful.h>
-#include <ws.h>
+ILIB_FUNCTION
+int proc_run(void __far* entrypoint, int argc, const char __far* __far* argv) {
+    // TODO: Handle argc/argv
+    ((proc_func_entrypoint_t) entrypoint)();
+    return 0;
+}
 
-#define SRAM_BANK_RAM0 0
-#define SRAM_BANK_PROG2 1
-#define SRAM_BANK_PROG1 2
-#define SRAM_BANK_OS 3
+ILIB_FUNCTION
+int proc_exec(const char __far* cmdline, int argc, const char __far* __far* argv) {
+    void __far* entrypoint = proc_load(cmdline);
+    if (entrypoint == NULL) {
+        // TODO: Error code
+        return -1;
+    }
+    return proc_run(entrypoint, argc, argv);
+}
 
-#ifndef __ASSEMBLER__
-#define ILIB_FUNCTION __attribute__((cdecl)) far
+ILIB_FUNCTION
+void proc_exit(int code) {
+    bios_exit();
+}
 
-typedef struct {
-    char id[4];
-    uint8_t todo_1[8];
-    void __far* ilib;
-    void __far* proc;
-    uint8_t todo_2[4];
-    char cwd[64];
-    void *argv;
-    void __far* resource;
-    void *heap;
-} pcb_t;
+ILIB_FUNCTION
+void proc_yield(void) {
 
-_Static_assert(sizeof(pcb_t) == 96, "Invalid PCB size!");
+}
 
-typedef uint16_t __far (*proc_func_load_t)(void);
-typedef void __far (*proc_func_entrypoint_t)(void);
-#endif
+ILIB_FUNCTION
+int proc_suspend(int i) {
+    return -1;
+}
 
-#endif /* _COMMON_H_ */
+ILIB_FUNCTION
+void proc_resume(int i) {
+
+}
+
+ILIB_FUNCTION
+int proc_swap(int i) {
+    return -1;
+}

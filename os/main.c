@@ -20,19 +20,26 @@
  * SOFTWARE.
  */
 
-#include <sys/bios.h>
 #include "common.h"
+#include "il/proc.h"
 
 #define PROGRAM_SEGMENT 0x8008 /* 128 bytes after 0x80000 */
 
-typedef uint16_t __far (*func_start_t)(void);
-typedef void __far (*func_main_t)(void);
+extern uint8_t il_ilib;
+extern uint8_t il_proc;
 
 int main(void) {
-    func_start_t start_func = MK_FP(PROGRAM_SEGMENT, 0);
+    outportb(IO_BANK_RAM, SRAM_BANK_PROG1);
+
+    proc_func_load_t start_func = MK_FP(PROGRAM_SEGMENT, 0);
     uint16_t main_func_ofs = start_func();
-    func_main_t main_func = MK_FP(PROGRAM_SEGMENT, main_func_ofs);
-    main_func();
+
+    pcb_t *pcb = (pcb_t*) 0x0000;
+    pcb->ilib = MK_FP(_CS, &il_ilib);
+    pcb->proc = MK_FP(_CS, &il_proc);
+    pcb->cwd[0] = 0;
+
+    proc_run(MK_FP(PROGRAM_SEGMENT, main_func_ofs), 0, NULL);
 
     return 0;
 }

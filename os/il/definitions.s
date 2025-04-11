@@ -20,43 +20,52 @@
  * SOFTWARE.
  */
 
-#ifndef _COMMON_H
-#define _COMMON_H
+	.arch	i186
+	.code16
+	.intel_syntax noprefix
+#include "common.h"
 
-#ifndef __ASSEMBLER__
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <sys/bios.h>
-#endif
+#define ILIB_SEGMENT 0xE000
 
-#include <wonderful.h>
-#include <ws.h>
 
-#define SRAM_BANK_RAM0 0
-#define SRAM_BANK_PROG2 1
-#define SRAM_BANK_PROG1 2
-#define SRAM_BANK_OS 3
+.macro ILIB_FUNCTION fun
+    .word \fun
+    .word ILIB_SEGMENT
+.endm
 
-#ifndef __ASSEMBLER__
-#define ILIB_FUNCTION __attribute__((cdecl)) far
+.macro ILIB_DEFINE name, functions
+il_\name\()_name: .asciz "\name"
+il_\name\()_version: .asciz "0"
+il_\name\()_info:
+    .word il_\name\()_name, ILIB_SEGMENT
+    .word il_\name\()_name, ILIB_SEGMENT
+    .word il_\name\()_version, ILIB_SEGMENT
+    .word il_\name\()_name, ILIB_SEGMENT
+    .word 0, 0
 
-typedef struct {
-    char id[4];
-    uint8_t todo_1[8];
-    void __far* ilib;
-    void __far* proc;
-    uint8_t todo_2[4];
-    char cwd[64];
-    void *argv;
-    void __far* resource;
-    void *heap;
-} pcb_t;
+    .global il_\name\()_get_info
+il_\name\()_get_info:
+    mov dx, cs
+    mov ax, il_\name\()_info
+    retf
 
-_Static_assert(sizeof(pcb_t) == 96, "Invalid PCB size!");
+    .global il_\name
+il_\name\():
+    .word 0, ILIB_SEGMENT
+    .word (\functions + 1)
+ILIB_FUNCTION il_\name\()_get_info
+.endm
 
-typedef uint16_t __far (*proc_func_load_t)(void);
-typedef void __far (*proc_func_entrypoint_t)(void);
-#endif
+ILIB_DEFINE ilib, 2
+ILIB_FUNCTION ilib_open
+ILIB_FUNCTION ilib_open_system
 
-#endif /* _COMMON_H_ */
+ILIB_DEFINE proc, 8
+ILIB_FUNCTION proc_load
+ILIB_FUNCTION proc_run
+ILIB_FUNCTION proc_exec
+ILIB_FUNCTION proc_exit
+ILIB_FUNCTION proc_yield
+ILIB_FUNCTION proc_suspend
+ILIB_FUNCTION proc_resume
+ILIB_FUNCTION proc_swap

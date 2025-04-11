@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, 2024 Adrian "asie" Siekierka
+ * Copyright (c) 2025 Adrian "asie" Siekierka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,43 +20,14 @@
  * SOFTWARE.
  */
 
-#ifndef _COMMON_H
-#define _COMMON_H
+#include "common.h"
 
-#ifndef __ASSEMBLER__
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <sys/bios.h>
-#endif
+ILIB_FUNCTION
+int ilib_open_system(const char __far* name, void __far* il_buffer) {
+    return -1;
+}
 
-#include <wonderful.h>
-#include <ws.h>
-
-#define SRAM_BANK_RAM0 0
-#define SRAM_BANK_PROG2 1
-#define SRAM_BANK_PROG1 2
-#define SRAM_BANK_OS 3
-
-#ifndef __ASSEMBLER__
-#define ILIB_FUNCTION __attribute__((cdecl)) far
-
-typedef struct {
-    char id[4];
-    uint8_t todo_1[8];
-    void __far* ilib;
-    void __far* proc;
-    uint8_t todo_2[4];
-    char cwd[64];
-    void *argv;
-    void __far* resource;
-    void *heap;
-} pcb_t;
-
-_Static_assert(sizeof(pcb_t) == 96, "Invalid PCB size!");
-
-typedef uint16_t __far (*proc_func_load_t)(void);
-typedef void __far (*proc_func_entrypoint_t)(void);
-#endif
-
-#endif /* _COMMON_H_ */
+ILIB_FUNCTION
+int ilib_open(const char __far* name, void __far* il_buffer) {
+    return ilib_open_system(name, il_buffer);
+}
