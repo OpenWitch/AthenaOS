@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <sys/bios.h>
 #include "common.h"
 
 #define PROGRAM_SEGMENT 0x8008 /* 128 bytes after 0x80000 */

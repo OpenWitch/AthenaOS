@@ -1,0 +1,3 @@
+[submodule "vendor/ow-libs"]
+	path = vendor/ow-libs
+	url = https://github.com/OpenWitch/ow-libs

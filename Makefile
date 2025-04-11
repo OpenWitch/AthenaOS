@@ -4,7 +4,7 @@
 
 WONDERFUL_TOOLCHAIN ?= /opt/wonderful
 CONFIG ?= config.mk
-TARGET = wswan/small
+TARGET = wswan/small-sram
 include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
 # Configuration
@@ -19,6 +19,8 @@ NAME_BIOS	:= $(NAME)BIOS-$(VERSION)-$(FLAVOR)
 NAME_OS		:= $(NAME)OS-$(VERSION)-$(FLAVOR)
 SRC_BIOS	:= bios bios/bank bios/comm bios/disp bios/key bios/sound bios/system bios/text bios/timer bios/util
 SRC_OS		:= os
+SRC_OWLIBS	:= vendor/ow-libs/library/gcc/src
+INCLUDE_OS	:= os vendor/ow-libs/library/gcc/include
 
 # Defines
 # -------
@@ -93,8 +95,10 @@ endif
 
 SOURCES_BIOS_S	:= $(shell find -L $(SRC_BIOS) -maxdepth 1 -name "*.s")
 SOURCES_BIOS_C	:= $(shell find -L $(SRC_BIOS) -maxdepth 1 -name "*.c")
-SOURCES_OS_S	:= $(shell find -L $(SRC_OS)   -maxdepth 1 -name "*.s")
-SOURCES_OS_C	:= $(shell find -L $(SRC_OS)   -maxdepth 1 -name "*.c")
+SOURCES_OS_S	:= $(shell find -L $(SRC_OS)   -maxdepth 1 -name "*.s") \
+		   $(shell find -L $(SRC_OWLIBS)           -name "*.s")
+SOURCES_OS_C	:= $(shell find -L $(SRC_OS)   -maxdepth 1 -name "*.c") \
+		   $(shell find -L $(SRC_OWLIBS)           -name "*.c")
 
 # Compiler and linker flags
 # -------------------------
@@ -102,6 +106,8 @@ SOURCES_OS_C	:= $(shell find -L $(SRC_OS)   -maxdepth 1 -name "*.c")
 WARNFLAGS	:= -Wall
 
 INCLUDEFLAGS	:= $(foreach path,$(LIBDIRS),-isystem $(path)/include)
+INCLUDEFLAGS_BIOS := -Ibios
+INCLUDEFLAGS_OS	:= $(foreach path,$(INCLUDE_OS),-I $(path))
 
 LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
@@ -113,8 +119,8 @@ CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
 
 LDFLAGS		:= $(LIBDIRSFLAGS) $(WF_ARCH_LDFLAGS) $(LIBS)
 
-CFLAGS_BIOS	:= -Ibios
-CFLAGS_OS	:= -Ios
+CFLAGS_BIOS	:= $(INCLUDEFLAGS_BIOS)
+CFLAGS_OS	:= $(INCLUDEFLAGS_OS)
 
 # Intermediate build files
 # ------------------------
@@ -133,9 +139,9 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all bios os clean
+.PHONY: all bios os clean compile_commands.json
 
-all: bios os
+all: bios os compile_commands.json
 
 bios: $(RAW_BIOS)
 
@@ -168,7 +174,11 @@ $(ELF_OS): $(OBJS_OS) os/link.ld
 
 clean:
 	@echo "  CLEAN"
-	$(_V)$(RM) $(DISTDIR) $(BUILDDIR)
+	$(_V)$(RM) $(DISTDIR) $(BUILDDIR) compile_commands.json
+
+compile_commands.json: $(OBJS) | Makefile
+	@echo "  MERGE   compile_commands.json"
+	$(_V)$(WF)/bin/wf-compile-commands-merge $@ $(patsubst %.o,%.cc.json,$^)
 
 # Rules
 # -----
@@ -205,6 +215,16 @@ $(BUILDDIR)/os/%.s.o : os/%.s $(CONFIG_FILES)
 	$(_V)$(CC) $(ASFLAGS) $(CFLAGS_OS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
 
 $(BUILDDIR)/os/%.c.o : os/%.c $(CONFIG_FILES)
+	@echo "  CC      $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(CC) $(CFLAGS) $(CFLAGS_OS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
+
+$(BUILDDIR)/vendor/ow-libs/%.s.o : vendor/ow-libs/%.s $(CONFIG_FILES)
+	@echo "  AS      $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(CC) $(ASFLAGS) $(CFLAGS_OS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
+
+$(BUILDDIR)/vendor/ow-libs/%.c.o : vendor/ow-libs/%.c $(CONFIG_FILES)
 	@echo "  CC      $<"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(CC) $(CFLAGS) $(CFLAGS_OS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
