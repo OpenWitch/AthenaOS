@@ -22,9 +22,9 @@
 
 #include "common.h"
 
-ILIB_FUNCTION
+IL_FUNCTION
 int ilib_open(const char __far* name, void __far* il_buffer);
 
-ILIB_FUNCTION
+IL_FUNCTION
 int ilib_open_system(const char __far* name, void __far* il_buffer);
  

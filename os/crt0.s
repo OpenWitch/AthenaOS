@@ -29,6 +29,10 @@
 _start:
 	cld
 
+	// set correct bank for data/bss initialization
+	mov al, 0x03
+	out 0xC1, al
+
 	// prepare ES for data/BSS
 	// stack pointer configured by BIOS
 	push 0x1000

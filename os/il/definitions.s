@@ -23,10 +23,9 @@
 	.arch	i186
 	.code16
 	.intel_syntax noprefix
+
 #include "common.h"
-
-#define ILIB_SEGMENT 0xE000
-
+#define ILIB_SEGMENT OS_SEGMENT
 
 .macro ILIB_FUNCTION fun
     .word \fun
@@ -56,9 +55,15 @@ il_\name\():
 ILIB_FUNCTION il_\name\()_get_info
 .endm
 
+.macro ILIB_DEFINE_END name
+    .global il_\name\()_end
+il_\name\()_end:
+.endm
+
 ILIB_DEFINE ilib, 2
 ILIB_FUNCTION ilib_open
 ILIB_FUNCTION ilib_open_system
+ILIB_DEFINE_END ilib
 
 ILIB_DEFINE proc, 8
 ILIB_FUNCTION proc_load
@@ -69,3 +74,25 @@ ILIB_FUNCTION proc_yield
 ILIB_FUNCTION proc_suspend
 ILIB_FUNCTION proc_resume
 ILIB_FUNCTION proc_swap
+ILIB_DEFINE_END proc
+
+ILIB_DEFINE fs, 18
+ILIB_FUNCTION fs_entries
+ILIB_FUNCTION fs_n_entries
+ILIB_FUNCTION fs_getent
+ILIB_FUNCTION fs_findent
+ILIB_FUNCTION fs_mmap
+ILIB_FUNCTION fs_open
+ILIB_FUNCTION fs_close
+ILIB_FUNCTION fs_read
+ILIB_FUNCTION fs_write
+ILIB_FUNCTION fs_lseek
+ILIB_FUNCTION fs_chmod
+ILIB_FUNCTION fs_freeze
+ILIB_FUNCTION fs_melt
+ILIB_FUNCTION fs_creat
+ILIB_FUNCTION fs_unlink
+ILIB_FUNCTION fs_newfs
+ILIB_FUNCTION fs_defrag
+ILIB_FUNCTION fs_space
+ILIB_DEFINE_END fs

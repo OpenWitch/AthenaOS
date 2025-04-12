@@ -28,35 +28,31 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/bios.h>
+#include <sys/filesys.h>
+#include <sys/indirect.h>
+#include <sys/oswork.h>
+#include <sys/process.h>
 #endif
 
 #include <wonderful.h>
 #include <ws.h>
 
-#define SRAM_BANK_RAM0 0
-#define SRAM_BANK_PROG2 1
-#define SRAM_BANK_PROG1 2
-#define SRAM_BANK_OS 3
+#define OS_SEGMENT 0xE000
 
 #ifndef __ASSEMBLER__
-#define ILIB_FUNCTION __attribute__((cdecl)) far
 
-typedef struct {
-    char id[4];
-    uint8_t todo_1[8];
-    void __far* ilib;
-    void __far* proc;
-    uint8_t todo_2[4];
-    char cwd[64];
-    void *argv;
-    void __far* resource;
-    void *heap;
-} pcb_t;
-
-_Static_assert(sizeof(pcb_t) == 96, "Invalid PCB size!");
-
+__attribute__((cdecl))
 typedef uint16_t __far (*proc_func_load_t)(void);
-typedef void __far (*proc_func_entrypoint_t)(void);
+__attribute__((cdecl))
+typedef void __far (*proc_func_entrypoint_t)(int argc, char **argv);
+
+extern FsIL il_fs;
+extern uint8_t il_fs_end;
+extern IlibIL il_ilib;
+extern uint8_t il_ilib_end;
+extern ProcIL il_proc;
+extern uint8_t il_proc_end;
+
 #endif
 
 #endif /* _COMMON_H_ */

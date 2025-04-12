@@ -22,15 +22,15 @@
 
 #include "common.h"
 
-ILIB_FUNCTION
-void __far* proc_load(const char __far* cmdline) {
+IL_FUNCTION
+void __far* __far proc_load(const char __far* cmdline) {
     return NULL;
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_run(void __far* entrypoint, int argc, const char __far* __far* argv) {
     // Copy argv
-    char **local_argv = CURRENT_PCB->argv;
+    char **local_argv = _pc->_argv;
     char *local_arg = (char*) (local_argv + argc);
     for (int i = 0; i < argc; i++) {
         *(local_argv++) = local_arg;
@@ -42,46 +42,45 @@ int proc_run(void __far* entrypoint, int argc, const char __far* __far* argv) {
         }
         *(local_arg++) = 0;
     }
-    if ((uint16_t) CURRENT_PCB->heap < (uint16_t) CURRENT_PCB->argv) {
-        CURRENT_PCB->heap = CURRENT_PCB->argv;
+    if ((uint16_t) _pc->_heap < (uint16_t) _pc->_argv) {
+        _pc->_heap = _pc->_argv;
     }
 
     // Run entrypoint
-    ((proc_func_entrypoint_t) entrypoint)(argc, CURRENT_PCB->argv);
+    ((proc_func_entrypoint_t) entrypoint)(argc, _pc->_argv);
     return 0;
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_exec(const char __far* cmdline, int argc, const char __far* __far* argv) {
     void __far* entrypoint = proc_load(cmdline);
     if (entrypoint == NULL) {
-        // TODO: Error code
-        return -1;
+        return E_FS_ERROR;
     }
     return proc_run(entrypoint, argc, argv);
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 void proc_exit(int code) {
     bios_exit();
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 void proc_yield(void) {
 
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_suspend(int i) {
-    return -1;
+    return E_FS_ERROR;
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 void proc_resume(int i) {
 
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_swap(int i) {
-    return -1;
+    return E_FS_ERROR;
 }

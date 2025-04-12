@@ -22,14 +22,14 @@
 
 #include "common.h"
  
-ILIB_FUNCTION
-void __far* proc_load(const char __far* command);
+IL_FUNCTION
+void __far* __far proc_load(const char __far* command);
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_run(void __far* entry, int argc, const char __far* __far* argv);
 
-ILIB_FUNCTION
+IL_FUNCTION
 int proc_exec(const char __far* command, int argc, const char __far* __far* argv);
 
-ILIB_FUNCTION
+IL_FUNCTION
 void proc_exit(int code);

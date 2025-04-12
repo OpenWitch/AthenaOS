@@ -1,9 +1,14 @@
 OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
+MEMORY
+{
+	rom : ORIGIN = 0xE0000, LENGTH = 0x10000
+	ram : ORIGIN = 0x10000, LENGTH = 0x10000
+}
 SECTIONS
 {
 	/* segelf segment start markers for target text section. */
-	".text!" 0xE0000 (NOLOAD) :
+	".text!" (NOLOAD) :
 	{
 		"__text_start!" = .;
 		KEEP(*(".start!"))
@@ -11,21 +16,26 @@ SECTIONS
 		*(".fartext!*" ".fartext.*!")
 		*(".farrodata!*" ".farrodata.*!")
 		"__text_end!" = .;
-	}
+		"__ia16_far_alias.0!" = .;
+		"__ia16_far_alias.1!" = .;
+		"__ia16_far_alias.2!" = .;
+	} >rom
 
 	/* Target text section. */
-	.text 0xE0000 :
+	.text :
 	{
+		. = ALIGN (2);
 		__text_start = .;
 		KEEP(*(".start"))
 		*(.text ".text.*[^&]")
 		*(".fartext.*[^&]")
 		*(".farrodata.*[^&]")
+		. = ALIGN (2);
 		__text_end = .;
-	}
+	} >rom
 
 	/* segelf segment end markers for target text section. */
-	".text&" . (NOLOAD) :
+	".text&" (NOLOAD) :
 	{
 		"__text_start&" = .;
 		KEEP(*(".start&"))
@@ -34,28 +44,35 @@ SECTIONS
 		*(".farrodata&*" ".farrodata.*&")
 		"__text_end&" = .;
 		. = ALIGN (2);
-	}
+	} >rom
 
 	/* segelf segment start markers for target data section. */
-	".data!" 0x10000 (NOLOAD) : AT(ADDR(".text") + SIZEOF(".text"))
+	".data!" (NOLOAD) :
 	{
 		"__data_start!" = .;
+		*(".sramwork!")
 		*(".rodata!*" ".rodata.*!")
 		*(".data!*" ".data.*!")
 		*(".bss!*" ".bss.*!")
 		"__data_end!" = .;
 		"__bss_end!" = .;
-	}
+	} >ram
+
+	.compat (NOLOAD) :
+	{
+		KEEP(*(".sramwork"));
+	} >ram
 
 	/* Target data section. */
-	.data 0x10000 : AT(ADDR(".text") + SIZEOF(".text"))
+	.data . :
 	{
+		. = ALIGN (2);
 		__data_start = .;
 		*(.rodata ".rodata.*[^&]")
 		*(.data ".data.*[^&]")
 		. = ALIGN (2);
 		__data_end = .;
-	}
+	} >ram AT>rom
 	"__data_length!" = 0;
 	__data_length = SIZEOF(.data);
 	"__data_length_words!" = 0;
@@ -67,7 +84,7 @@ SECTIONS
 		*(.bss ".bss.*[^&]")
 		. = ALIGN (2);
 		__bss_end = .;
-	}
+	} >ram
 	"__bss_length!" = 0;
 	__bss_length = SIZEOF(.bss);
 	"__bss_length_words!" = 0;
@@ -77,12 +94,13 @@ SECTIONS
 	".data&" . (NOLOAD) :
 	{
 		"__data_start&" = .;
+		*(".sramwork&")
 		*(".rodata&*" ".rodata.*&")
 		*(".data&*" ".data.*&")
 		*(".bss&*" ".bss.*&")
 		"__data_end&" = .;
 		"__bss_end& " = .;
-	}
+	} >ram
 
     /* Temporary workaround for avoiding debug relocation problems */
 

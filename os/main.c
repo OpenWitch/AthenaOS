@@ -21,27 +21,37 @@
  */
 
 #include "common.h"
+#include "il/fs.h"
+#include "il/ilib.h"
 #include "il/proc.h"
+#include "sys/bios.h"
 
 #define PROGRAM_SEGMENT 0x8008 /* 128 bytes after 0x80000 */
 
-extern uint8_t il_ilib;
-extern uint8_t il_proc;
+__attribute__((section(".sramwork")))
+SRAMWork sramwork;
 
 int main(void) {
-    outportb(IO_BANK_RAM, SRAM_BANK_PROG1);
+    sramwork._os_version = 0x1963; // version 1.9.99
+
+    outportb(IO_BANK_RAM, BANK_OSWORK);
+
+    fs_init();
+    sys_alloc_iram((void*) 0x204, 194);
+
+    outportb(IO_BANK_RAM, BANK_USERDS0);
 
     proc_func_load_t start_func = MK_FP(PROGRAM_SEGMENT, 0);
     uint16_t main_func_ofs = start_func();
 
-    pcb_t *pcb = (pcb_t*) 0x0000;
-    pcb->ilib = MK_FP(_CS, &il_ilib);
-    pcb->proc = MK_FP(_CS, &il_proc);
-    pcb->cwd[0] = 0;
+    _pc->_ilib = MK_FP(_CS, &il_ilib);
+    _pc->_proc = MK_FP(_CS, &il_proc);
+    _pc->_cwfs = rom0_fs;
+    _pc->_currentdir[0] = 0;
     uint32_t resource_bytes = *((uint32_t __far*) MK_FP(PROGRAM_SEGMENT - 4, 60));
-    pcb->resource = MK_FP(PROGRAM_SEGMENT + (resource_bytes >> 4), resource_bytes & 0xF);
+    _pc->_resource = MK_FP(PROGRAM_SEGMENT + (resource_bytes >> 4), resource_bytes & 0xF);
 
     proc_run(MK_FP(PROGRAM_SEGMENT, main_func_ofs), 0, NULL);
 
-    return 0;
+    while(1);
 }

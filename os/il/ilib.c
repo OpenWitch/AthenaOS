@@ -22,12 +22,12 @@
 
 #include "common.h"
 
-ILIB_FUNCTION
+IL_FUNCTION
 int ilib_open_system(const char __far* name, void __far* il_buffer) {
-    return -1;
+    return E_FS_ERROR;
 }
 
-ILIB_FUNCTION
+IL_FUNCTION
 int ilib_open(const char __far* name, void __far* il_buffer) {
     return ilib_open_system(name, il_buffer);
 }
