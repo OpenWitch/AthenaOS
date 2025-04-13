@@ -46,12 +46,14 @@ typedef uint16_t __far (*proc_func_load_t)(void);
 __attribute__((cdecl))
 typedef void __far (*proc_func_entrypoint_t)(int argc, char **argv);
 
-extern FsIL il_fs;
-extern uint8_t il_fs_end;
-extern IlibIL il_ilib;
-extern uint8_t il_ilib_end;
-extern ProcIL il_proc;
-extern uint8_t il_proc_end;
+#define OS_DEFINE_IL(name, type) \
+    extern type name; \
+    extern uint8_t name ## _end; \
+    static inline type __far* name ## _ptr(void) { return MK_FP(OS_SEGMENT, FP_OFF(&name)); };
+
+OS_DEFINE_IL(il_fs, FsIL);
+OS_DEFINE_IL(il_ilib, IlibIL);
+OS_DEFINE_IL(il_proc, ProcIL);
 
 #endif
 

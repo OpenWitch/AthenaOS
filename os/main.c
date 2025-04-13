@@ -20,13 +20,12 @@
  * SOFTWARE.
  */
 
+#include <string.h>
 #include "common.h"
-#include "il/fs.h"
+#include "fs/fs.h"
 #include "il/ilib.h"
 #include "il/proc.h"
 #include "sys/bios.h"
-
-#define PROGRAM_SEGMENT 0x8008 /* 128 bytes after 0x80000 */
 
 __attribute__((section(".sramwork")))
 SRAMWork sramwork;
@@ -36,22 +35,24 @@ int main(void) {
 
     outportb(IO_BANK_RAM, BANK_OSWORK);
 
-    fs_init();
+    const fent_t *executable = fs_init();
+    uint16_t exec_segment = FP_SEG(executable->loc);
+
     sys_alloc_iram((void*) 0x204, 194);
 
     outportb(IO_BANK_RAM, BANK_USERDS0);
 
-    proc_func_load_t start_func = MK_FP(PROGRAM_SEGMENT, 0);
+    proc_func_load_t start_func = MK_FP(exec_segment, 0);
     uint16_t main_func_ofs = start_func();
 
-    _pc->_ilib = MK_FP(_CS, &il_ilib);
-    _pc->_proc = MK_FP(_CS, &il_proc);
+    _pc->_ilib = il_ilib_ptr();
+    _pc->_proc = il_proc_ptr();
     _pc->_cwfs = rom0_fs;
-    _pc->_currentdir[0] = 0;
-    uint32_t resource_bytes = *((uint32_t __far*) MK_FP(PROGRAM_SEGMENT - 4, 60));
-    _pc->_resource = MK_FP(PROGRAM_SEGMENT + (resource_bytes >> 4), resource_bytes & 0xF);
+    strcpy(_pc->_currentdir, "/rom0");
+    uint32_t resource_bytes = *((uint32_t __far*) MK_FP(exec_segment - 4, 60));
+    _pc->_resource = MK_FP(exec_segment + (resource_bytes >> 4), resource_bytes & 0xF);
 
-    proc_run(MK_FP(PROGRAM_SEGMENT, main_func_ofs), 0, NULL);
+    proc_run(MK_FP(exec_segment, main_func_ofs), 0, NULL);
 
     while(1);
 }

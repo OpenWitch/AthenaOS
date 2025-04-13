@@ -18,7 +18,7 @@ VERSION		?= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 NAME_BIOS	:= $(NAME)BIOS-$(VERSION)-$(FLAVOR)
 NAME_OS		:= $(NAME)OS-$(VERSION)-$(FLAVOR)
 SRC_BIOS	:= bios bios/bank bios/comm bios/disp bios/key bios/sound bios/system bios/text bios/timer bios/util
-SRC_OS		:= os os/il
+SRC_OS		:= os os/fs os/fs/rom os/il
 SRC_OWLIBS	:= vendor/ow-libs/library/gcc/src
 INCLUDE_OS	:= os vendor/ow-libs/library/gcc/include
 

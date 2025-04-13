@@ -21,37 +21,14 @@
  */
 
 #include <string.h>
+#include <ws/cartridge.h>
+#include <ws/util.h>
 #include "common.h"
-#include "fs/fs.h"
+#include "sys/bios.h"
 
-__attribute__((optimize("-O0")))
-static int __ilib_open(FS fs, const char __far* name, void __far* il_buffer) {
-    fent_t entry;
-
-    if (fs_findent(fs, name, &entry) >= 0) {
-        IL __far* il = (IL __far*) entry.loc;
-        if (il == NULL) return E_FS_ERROR;
-
-        size_t il_len = sizeof(IL) - 4 + il->n_methods * 4;
-        memcpy(il_buffer, il, il_len);
-        for (int i = 0; i < il->n_methods; i++) {
-            ((uint16_t __far*) il_buffer)[4 + 2 * i] += FP_SEG(il);
-        }
-        return 0;
-    }
-    
-    return E_FS_ERROR;
-}
-
-IL_FUNCTION
-int ilib_open_system(const char __far* name, void __far* il_buffer) {
-    return __ilib_open(kern_fs, name, il_buffer);
-}
-
-IL_FUNCTION
-int ilib_open(const char __far* name, void __far* il_buffer) {
-    int result = __ilib_open(rom0_fs, name, il_buffer);
-    if (result >= 0)
-        return result;
-    return ilib_open_system(name, il_buffer);
-}
+const fent_t kern_fs_entries[] = {
+    {"@ilib", "ilib", __builtin_ia16_static_far_cast(&il_ilib), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
+    {"@proc", "proc", __builtin_ia16_static_far_cast(&il_proc), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
+    {"@pfs",  "pfs",  __builtin_ia16_static_far_cast(&il_fs),   0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
+};
+const uint16_t kern_fs_num_entries = sizeof(kern_fs_entries) / sizeof(fent_t);

@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import argparse
+import struct
 import sys
 
 parser = argparse.ArgumentParser(
@@ -48,17 +49,37 @@ for fn in args.files:
 if len(system_data) != 65536:
     raise Exception('The System image should be exactly 64 kilobytes')
 
-# TODO: Implement file system support.
-filesystem_data = bytes()
-
-if len(files) > 1:
-    raise Exception('More than one file is not currently supported')
-elif len(files) == 1:
-    filesystem_data = next(iter(files.values()))
-
 with open(args.output, "wb") as fout:
-    fout.write(bytes(filesystem_data))
-    fout.write(bytes([0xFF] * ((384 * 1024) - len(filesystem_data))))
+    fout.write(bytes([0xFF] * (640 * 1024)))
     fout.write(bytes(soft_data))
     fout.write(bytes([0xFF] * ((64 * 1024) - len(soft_data))))
     fout.write(bytes(system_data))
+
+    file_pos = len(args.files) * 64
+    file_count = 0
+
+    print(len(files))
+    for fn in args.files:
+        print(fn)
+        data = files[fn]
+        if data[0:4] == bytes("#!ws", "ascii"):
+            file_data = data[128:]
+            file_header = bytearray(data[64:128])
+        else:
+            raise Exception('Non-.fx files are not currently supported')
+
+        file_len = (len(file_data) + 15) & (~15)
+        file_segment = (file_pos + 0x40000) >> 4
+
+        file_header[40:44] = struct.pack('<HH', 0, file_segment)
+
+        fout.seek(file_count * 64)
+        fout.write(bytes(file_header))
+        fout.seek(file_pos)
+        fout.write(bytes(file_data))
+
+        file_pos += file_len
+        file_count += 1
+
+    fout.seek((640 * 1024) + (64 * 1024) - 16)
+    fout.write(struct.pack('<HHHH', 0x5AA5, 0x4000, file_count, 0))

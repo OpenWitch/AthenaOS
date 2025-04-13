@@ -20,38 +20,60 @@
  * SOFTWARE.
  */
 
-#include <string.h>
 #include "common.h"
-#include "fs/fs.h"
-
-__attribute__((optimize("-O0")))
-static int __ilib_open(FS fs, const char __far* name, void __far* il_buffer) {
-    fent_t entry;
-
-    if (fs_findent(fs, name, &entry) >= 0) {
-        IL __far* il = (IL __far*) entry.loc;
-        if (il == NULL) return E_FS_ERROR;
-
-        size_t il_len = sizeof(IL) - 4 + il->n_methods * 4;
-        memcpy(il_buffer, il, il_len);
-        for (int i = 0; i < il->n_methods; i++) {
-            ((uint16_t __far*) il_buffer)[4 + 2 * i] += FP_SEG(il);
-        }
-        return 0;
-    }
-    
-    return E_FS_ERROR;
-}
 
 IL_FUNCTION
-int ilib_open_system(const char __far* name, void __far* il_buffer) {
-    return __ilib_open(kern_fs, name, il_buffer);
-}
+fent_t __far* __far fs_entries(FS fs);
 
 IL_FUNCTION
-int ilib_open(const char __far* name, void __far* il_buffer) {
-    int result = __ilib_open(rom0_fs, name, il_buffer);
-    if (result >= 0)
-        return result;
-    return ilib_open_system(name, il_buffer);
-}
+int fs_n_entries(FS fs);
+
+IL_FUNCTION
+int fs_getent(FS fs, int index, fent_t __far* entry);
+
+IL_FUNCTION
+int fs_findent(FS fs, const char __far* filename, fent_t __far* entry);
+
+IL_FUNCTION
+void __far * __far fs_mmap(FS fs, const char __far *filename);
+
+IL_FUNCTION
+int fs_open(FS fs, const char __far *filename, int mode, int perms);
+
+IL_FUNCTION
+int fs_close(int fd);
+
+IL_FUNCTION
+int fs_read(int fd, char __far *data, int length);
+
+IL_FUNCTION
+int fs_write(int fd, const char __far *data, int length);
+
+IL_FUNCTION
+int fs_lseek(int fd, long offset, int whence);
+
+IL_FUNCTION
+int fs_chmod(FS fs, const char __far *filename, int mode);
+
+IL_FUNCTION
+int fs_freeze(FS fs, const char __far *filename);
+
+IL_FUNCTION
+int fs_melt(FS fs, const char __far *filename);
+
+IL_FUNCTION
+int fs_creat(FS fs, fent_t __far *entry);
+
+IL_FUNCTION
+int fs_unlink(FS fs, const char __far *filename);
+
+IL_FUNCTION
+int fs_newfs(FS fs);
+
+IL_FUNCTION
+int fs_defrag(FS fs);
+
+IL_FUNCTION
+uint32_t fs_space(FS fs);
+
+const fent_t *fs_init(void); 
