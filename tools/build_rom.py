@@ -49,8 +49,13 @@ for fn in args.files:
 if len(system_data) != 65536:
     raise Exception('The System image should be exactly 64 kilobytes')
 
+rom_size = 768 * 1024
+if len(files) == 0:
+    rom_size = 512 * 1024
+rom_start = (1024 * 1024) - rom_size
+
 with open(args.output, "wb") as fout:
-    fout.write(bytes([0xFF] * (640 * 1024)))
+    fout.write(bytes([0xFF] * (rom_size - (128 * 1024))))
     fout.write(bytes(soft_data))
     fout.write(bytes([0xFF] * ((64 * 1024) - len(soft_data))))
     fout.write(bytes(system_data))
@@ -58,7 +63,6 @@ with open(args.output, "wb") as fout:
     file_pos = len(args.files) * 64
     file_count = 0
 
-    print(len(files))
     for fn in args.files:
         print(fn)
         data = files[fn]
@@ -69,7 +73,7 @@ with open(args.output, "wb") as fout:
             raise Exception('Non-.fx files are not currently supported')
 
         file_len = (len(file_data) + 15) & (~15)
-        file_segment = (file_pos + 0x40000) >> 4
+        file_segment = (file_pos + rom_start) >> 4
 
         file_header[40:44] = struct.pack('<HH', 0, file_segment)
 
@@ -81,5 +85,5 @@ with open(args.output, "wb") as fout:
         file_pos += file_len
         file_count += 1
 
-    fout.seek((640 * 1024) + (64 * 1024) - 16)
-    fout.write(struct.pack('<HHHH', 0x5AA5, 0x4000, file_count, 0))
+    fout.seek(rom_size - (64 * 1024) - 16)
+    fout.write(struct.pack('<HHHH', 0x5AA5, rom_start >> 4, file_count, 0))
