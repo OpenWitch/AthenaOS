@@ -51,7 +51,9 @@ BIOS_BANK_MEMORY_IMPL := simple
 DEFINES		+= -DBIOS_BANK_MAPPER_SIMPLE_RAM
 endif
 
+ifneq ($(BIOS_BANK_MEMORY_IMPL),simple)
 SRC_BIOS    += bios/bank/$(BIOS_BANK_MEMORY_IMPL)
+endif
 
 # Tool paths
 # ----------

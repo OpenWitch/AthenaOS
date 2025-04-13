@@ -31,14 +31,19 @@ __attribute__((section(".sramwork")))
 SRAMWork sramwork;
 
 int main(void) {
-    sramwork._os_version = 0x1963; // version 1.9.99
-
     outportb(IO_BANK_RAM, BANK_OSWORK);
+
+    sramwork._os_version = 0x1963; // version 1.9.99
 
     const fent_t *executable = fs_init();
     uint16_t exec_segment = FP_SEG(executable->loc);
 
     sys_alloc_iram((void*) 0x204, 194);
+
+    void __far *exec_resource = NULL;
+    if (executable->resource != -1) {
+        exec_resource = MK_FP(exec_segment + (executable->resource >> 4), executable->resource & 0xF);
+    }
 
     outportb(IO_BANK_RAM, BANK_USERDS0);
 
@@ -49,8 +54,7 @@ int main(void) {
     _pc->_proc = il_proc_ptr();
     _pc->_cwfs = rom0_fs;
     strcpy(_pc->_currentdir, "/rom0");
-    uint32_t resource_bytes = *((uint32_t __far*) MK_FP(exec_segment - 4, 60));
-    _pc->_resource = MK_FP(exec_segment + (resource_bytes >> 4), resource_bytes & 0xF);
+    _pc->_resource = exec_resource;
 
     proc_run(MK_FP(exec_segment, main_func_ofs), 0, NULL);
 

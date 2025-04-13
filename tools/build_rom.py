@@ -28,6 +28,7 @@ parser = argparse.ArgumentParser(
     prog = 'build_rom',
     description = 'Concatenates .RAW images to a ROM file.'
 )
+parser.add_argument('-s', '--size')
 parser.add_argument('output')
 parser.add_argument('system')
 parser.add_argument('soft')
@@ -52,6 +53,8 @@ if len(system_data) != 65536:
 rom_size = 768 * 1024
 if len(files) == 0:
     rom_size = 512 * 1024
+if args.size:
+    rom_size = int(args.size) * 1024
 rom_start = (1024 * 1024) - rom_size
 
 with open(args.output, "wb") as fout:
@@ -85,5 +88,6 @@ with open(args.output, "wb") as fout:
         file_pos += file_len
         file_count += 1
 
-    fout.seek(rom_size - (64 * 1024) - 16)
-    fout.write(struct.pack('<HHHH', 0x5AA5, rom_start >> 4, file_count, 0))
+    if len(args.files) > 0:
+        fout.seek(rom_size - (64 * 1024) - 16)
+        fout.write(struct.pack('<HHHH', 0x5AA5, rom_start >> 4, file_count, 0))
