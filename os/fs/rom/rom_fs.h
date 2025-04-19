@@ -30,4 +30,4 @@ typedef struct {
 } rom_fs_footer_t;
 
 #define ROM_FS_FOOTER_MAGIC 0x5AA5
-#define rom_fs_footer ((rom_fs_footer_t __far*) MK_FP(OS_SEGMENT, 0xFFF0))
+#define rom_fs_footer ((rom_fs_footer_t __far*) MK_FP(OS_SEGMENT, 0xFFE0))
