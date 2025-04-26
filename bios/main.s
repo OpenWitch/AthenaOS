@@ -39,6 +39,26 @@ _start:
 	mov ax, MEM_STACK_TOP
 	mov sp, ax
 
+#ifdef ATHENA_FLAVOR_nileswan
+	// Unlock all cartridge I/O
+	mov al, 0xDD
+	out 0xE2, al
+
+	// Start MCU reset, disable unused features, unlock RAM/ROM banks
+	mov ax, 0x5D
+	out 0xE2, ax
+	in ax, 0xE4
+	and ax, 0xF1FF
+	out 0xE4, ax
+	mov al, 0xD4
+	out 0xE2, al
+
+	// Sleep for a few milliseconds
+	mov cx, 5000
+1:
+	loop 1b
+#endif
+
 	// initialize data/BSS
 	push cs
 	pop ds
