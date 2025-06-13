@@ -45,6 +45,7 @@ endif
 ifneq ($(filter $(BIOS_BANK_MEMORY),rom rom_ce),)
 BIOS_BANK_MEMORY_IMPL := simple
 DEFINES		+= -DBIOS_BANK_MAPPER_SIMPLE_ROM
+DEFINES		+= -DBIOS_NO_PSRAM_RETENTION_HEADER
 endif
 ifneq ($(filter $(BIOS_BANK_MEMORY),ram ram_ce),)
 BIOS_BANK_MEMORY_IMPL := simple

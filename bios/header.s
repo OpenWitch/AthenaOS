@@ -26,11 +26,13 @@
 
 	.section .header, "a"
 header:
+#ifndef BIOS_NO_PSRAM_RETENTION_HEADER
 	// This header is a credit notation for the ELISA font in the official
 	// FreyaBIOS program, stored at the beginning of its 64 KB segment.
 	// While we don't use ELISA, we preserve this header as it is used for
 	// WonderWitch ROM detection (=> enabling flash memory) by emulators.
 	.byte 'E', 'L', 'I', 'S', 'A'
+#endif
 
 	.section .footer_athena, "a"
 footer_athena:
