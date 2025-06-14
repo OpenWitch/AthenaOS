@@ -38,22 +38,34 @@ sound_init:
 	pusha
 	push es
 
+	// clear sound channel/output registers
+	xor ax, ax
+	out IO_SND_CH_CTRL, ax
+
 	// clear wave table
 	push ss
 	pop es
 
 	mov di, MEM_WAVETABLE
-	xor ax, ax
 	mov cx, 32
 	cld
 	rep stosw
 
-	// clear sound channel/output registers
-	out IO_SND_CH_CTRL, ax
-
 	// configure wavetable base
 	mov al, (MEM_WAVETABLE >> 6)
 	out IO_SND_WAVE_BASE, al
+
+	// clear all other sound ports
+	xor ax, ax
+	out 0x80, ax
+	out 0x82, ax
+	out 0x84, ax
+	out 0x86, ax
+	out 0x88, ax
+	out 0x8A, ax
+	out 0x8C, ax
+	out 0x8E, al
+	out 0x94, al
 
 	pop es
 	popa
