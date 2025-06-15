@@ -46,14 +46,14 @@ bank_read_block:
     mov di, si
     // BX:DX => DS:SI
     mov si, dx
-    bank_rw_bx_to_segment_start ds
+    bank_ro_bx_to_segment_start ds
     shr cx, 1
     cld
     rep movsw
     jnc 1f
     movsb
 1:
-    bank_rw_bx_to_segment_end
+    bank_ro_bx_to_segment_end
     pop ax
     ret
 

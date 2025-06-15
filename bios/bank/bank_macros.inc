@@ -118,6 +118,8 @@
     // bank_read/bank_write wrappers
     // Clobber AX, BX, DX, BP.
     // DX must remain unchanged between start and end
+
+    // == bank_rw (read write) ==
 #ifdef BIOS_BANK_MAPPER_NO_PORT_CE_SUPPORT
 .macro bank_rw_bx_to_segment_start segment_reg
     // Set DX to target port
@@ -171,16 +173,20 @@
     mov ax, bx
     bank_map_write_ax_sram
 
+#ifndef BIOS_BANK_QUIRK_CE_DISABLES_ROM
     shr ax, 15
     out WS_CART_BANK_FLASH_PORT, al
+#endif
 
     // Set segment register to 0x1000
     mov ax, 0x1000
     mov \segment_reg, ax
 .endm
 .macro bank_rw_bx_to_segment_end_unsafe
+#ifndef BIOS_BANK_QUIRK_CE_DISABLES_ROM
     xor ax, ax
     out WS_CART_BANK_FLASH_PORT, al
+#endif
 
     // Restore old SRAM bank
     pop ax
@@ -212,3 +218,104 @@
     pop ax
     bank_map_write_ax_sram
 .endm
+
+    // == bank_ro (read only) ==
+#if defined(BIOS_BANK_MAPPER_NO_PORT_CE_SUPPORT) || defined(BIOS_BANK_QUIRK_CE_DISABLES_ROM)
+.macro bank_ro_bx_to_segment_start segment_reg
+    // Set DX to target port
+    mov dx, bx
+    shr dx, 15
+    mov bp, dx
+    bank_map_dx_unsafe
+
+    // Preserve old target bank
+    bank_map_read_ax_dx
+    push ax
+
+#if BIOS_BANK_ROM_FORCE_COUNT > 0
+    test bh, 0x80
+    jz 1f // SRAM - skip
+
+    bank_adjust_wraparound_rom_end bx
+1:
+#endif
+
+    // Write new target bank
+    mov ax, bx
+    bank_map_write_ax_dx
+
+    // Set segment register to target
+    mov ax, bp
+    shl ax, 12
+    add ax, 0x1000
+    mov \segment_reg, ax
+.endm
+.macro bank_ro_bx_to_segment_end_unsafe
+    // Restore old target bank
+    pop ax
+    bank_map_write_ax_dx
+.endm
+#else
+.macro bank_ro_bx_to_segment_start segment_reg
+    // Preserve old SRAM bank
+    bank_map_read_ax_sram
+    push ax
+
+#if BIOS_BANK_ROM_FORCE_COUNT > 0
+    test bh, 0x80
+    jz 1f // SRAM - skip
+
+    bank_adjust_wraparound_rom_end bx
+1:
+#endif
+
+    // Write new SRAM bank
+    mov ax, bx
+    bank_map_write_ax_sram
+
+#ifndef BIOS_BANK_QUIRK_CE_DISABLES_ROM
+    shr ax, 15
+    out WS_CART_BANK_FLASH_PORT, al
+#endif
+
+    // Set segment register to 0x1000
+    mov ax, 0x1000
+    mov \segment_reg, ax
+.endm
+.macro bank_ro_bx_to_segment_end_unsafe
+#ifndef BIOS_BANK_QUIRK_CE_DISABLES_ROM
+    xor ax, ax
+    out WS_CART_BANK_FLASH_PORT, al
+#endif
+
+    // Restore old SRAM bank
+    pop ax
+    bank_map_write_ax_sram
+.endm
+#endif
+.macro bank_ro_bx_to_segment_end
+    // Restore old SRAM bank
+    mov bp, ax
+    bank_ro_bx_to_segment_end_unsafe
+    mov ax, bp
+.endm
+
+.macro bank_ro_bx_to_sram_segment_start segment_reg
+    // Preserve old SRAM bank
+    bank_map_read_ax_sram
+    push ax
+
+    // Write new SRAM bank
+    mov ax, bx
+    bank_map_write_ax_sram
+
+    // Set segment register to 0x1000
+    mov ax, 0x1000
+    mov \segment_reg, ax
+.endm
+.macro bank_ro_bx_to_sram_segment_end
+    // Restore old SRAM bank
+    pop ax
+    bank_map_write_ax_sram
+.endm
+

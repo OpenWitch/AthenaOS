@@ -41,9 +41,9 @@
 bank_read_byte:
     mov di, ax
     mov si, dx
-    bank_rw_bx_to_segment_start ds
+    bank_ro_bx_to_segment_start ds
     mov ax, di
     mov al, [si]
-    bank_rw_bx_to_segment_end
+    bank_ro_bx_to_segment_end
     ret
 

@@ -34,6 +34,9 @@
 	.section ".text"
     .global __bank_erase_flash_ram
 __bank_erase_flash_ram:
+	mov al, 0x01
+	out WS_CART_BANK_FLASH_PORT, al
+
 	// Note that this chip uses 128KB sectors.
 	mov ax, 0x1000
 	mov ds, ax
@@ -58,6 +61,8 @@ __bank_erase_flash_ram:
 	cmp al, byte [bx] // DQ2 and/or DQ6 toggles if status register
 	jne 1b
 9:
+	mov al, 0x00
+	out WS_CART_BANK_FLASH_PORT, al
 	retf
     
     .global __bank_erase_flash_ram_size

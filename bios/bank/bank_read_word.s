@@ -40,8 +40,8 @@
     .global bank_read_word
 bank_read_word:
     mov si, dx
-    bank_rw_bx_to_segment_start ds
+    bank_ro_bx_to_segment_start ds
     mov ax, [si]
-    bank_rw_bx_to_segment_end
+    bank_ro_bx_to_segment_end
     ret
 

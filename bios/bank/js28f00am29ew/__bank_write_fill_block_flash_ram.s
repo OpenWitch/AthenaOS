@@ -39,6 +39,11 @@
 	.section ".text"
     .global __bank_write_fill_block_flash_ram
 __bank_write_fill_block_flash_ram:
+	push ax
+	mov al, 0x01
+	out WS_CART_BANK_FLASH_PORT, al
+	pop ax
+
 	mov di, dx
 
 	mov bx, 0xAAA
@@ -104,6 +109,10 @@ __bwb_write_slow:
 9:
 	mov byte ptr es:[di], 0x90
 	mov byte ptr es:[di], 0x00
+
+	mov al, 0x00
+	out WS_CART_BANK_FLASH_PORT, al
+
 	retf
 	
 __bank_fill_block_flash_ram:
