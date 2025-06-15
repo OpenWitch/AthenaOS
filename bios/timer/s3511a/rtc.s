@@ -143,7 +143,7 @@ rtc_enable_alarm:
     call __bin_to_bcd_al
     call __rtc_write_byte
     // Write status
-    mov ax, ((WS_RTC_STATUS_INT_ALARM | WS_RTC_STATUS_24_HOUR) << 8) | 0x12
+    mov ax, ((WS_CART_RTC_STATUS_INT_ALARM | WS_CART_RTC_STATUS_24_HOUR) << 8) | 0x12
     call __rtc_write_start
     pop ax
     ret
@@ -157,7 +157,7 @@ rtc_init:
     call __rtc_read_byte
 
     // Was power loss detected?
-    test al, WS_RTC_STATUS_POWER_LOST
+    test al, WS_CART_RTC_STATUS_POWER_LOST
     jnz 1f
     pop ax
     ret
@@ -184,7 +184,7 @@ rtc_reset:
 rtc_disable_alarm:
     push ax
     // Write status
-    mov ax, ((WS_RTC_STATUS_24_HOUR) << 8) | 0x12
+    mov ax, ((WS_CART_RTC_STATUS_24_HOUR) << 8) | 0x12
     call __rtc_write_start
     pop ax
     ret
