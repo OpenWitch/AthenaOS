@@ -45,10 +45,10 @@ screen_set_vram:
     shl bl, cl // BL = address (shifted)
     mov cl, al // CL = inverted mask
 
-    in al, IO_SCR_BASE
+    in al, WS_SCR_BASE_PORT
     and al, cl
     or al, bl
-    out IO_SCR_BASE, al
+    out WS_SCR_BASE_PORT, al
 
     popa
     ret

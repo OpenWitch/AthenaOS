@@ -34,5 +34,5 @@
  */
     .global display_status
 display_status:
-    in ax, IO_DISPLAY_CTRL
+    in ax, WS_DISPLAY_CTRL_PORT
     ret

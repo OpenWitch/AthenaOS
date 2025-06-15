@@ -40,7 +40,7 @@ sound_init:
 
 	// clear sound channel/output registers
 	xor ax, ax
-	out IO_SND_CH_CTRL, ax
+	out WS_SOUND_CH_CTRL_PORT, ax
 
 	// clear wave table
 	push ss
@@ -53,7 +53,7 @@ sound_init:
 
 	// configure wavetable base
 	mov al, (MEM_WAVETABLE >> 6)
-	out IO_SND_WAVE_BASE, al
+	out WS_SOUND_WAVE_BASE_PORT, al
 
 	// clear all other sound ports
 	xor ax, ax

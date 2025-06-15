@@ -108,8 +108,8 @@ sys_get_ownerinfo:
     
     // DX = command
     mov dx, 0x0180
-    in al, IO_SYSTEM_CTRL2
-    test al, SYSTEM_CTRL2_COLOR
+    in al, WS_SYSTEM_CTRL_COLOR_PORT
+    test al, WS_SYSTEM_CTRL_COLOR_FEAT_COLOR
     jz 1f
     shl dx, 4 // shift left by 4 for WSC
 1:
@@ -122,14 +122,14 @@ sys_get_ownerinfo:
     test bx, bx
     jz 8f // out of bytes to read?
     mov ax, dx
-    out IO_IEEP_CMD, ax
-    mov ax, EEP_READ
-    out IO_IEEP_CTRL, ax
+    out WS_IEEP_COMMAND_PORT, ax
+    mov ax, WS_IEEP_CTRL_READ
+    out WS_IEEP_CTRL_PORT, ax
     mov cx, 3413 // CX = timeout - 10 ms / 9 cycles at 3 MHz
 3:
     // query read status
-    in ax, IO_IEEP_CTRL
-    test al, EEP_READY
+    in ax, WS_IEEP_CTRL_PORT
+    test al, WS_IEEP_CTRL_READY
     jnz 4f
     loop 3b
     // return timeout
@@ -137,7 +137,7 @@ sys_get_ownerinfo:
     jmp 9f
 4:
     // read successful
-    in ax, IO_IEEP_DATA
+    in ax, WS_IEEP_DATA_PORT
 
     // transform data (name -> ASCII, BCD -> int)
     push bx

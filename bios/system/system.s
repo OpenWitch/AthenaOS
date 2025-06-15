@@ -58,7 +58,7 @@ irq_system_handler:
 
     .section ".data"
 	.global sys_keepalive_int
-sys_keepalive_int: .byte HWINT_KEY
+sys_keepalive_int: .byte WS_INT_ENABLE_KEY_SCAN
 
 	.section ".bss"
 	.global sys_awake_key

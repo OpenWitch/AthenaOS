@@ -38,6 +38,6 @@
 sound_set_channel:
 	push ax
 	mov al, bl
-	out IO_SND_CH_CTRL, al
+	out WS_SOUND_CH_CTRL_PORT, al
 	pop ax
 	ret

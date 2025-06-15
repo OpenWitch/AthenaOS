@@ -35,6 +35,6 @@
 comm_close:
     push ax
     xor ax, ax
-    out IO_SERIAL_STATUS, al
+    out WS_UART_CTRL_PORT, al
     pop ax
     ret

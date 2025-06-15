@@ -40,21 +40,21 @@ __timer_set_type_irq:
 	shl bl, cl // BL = shifted timer value
 
 	// Apply timer value
-	in al, IO_TIMER_CTRL
+	in al, WS_TIMER_CTRL_PORT
 	and al, bh
 	or al, bl
-	out IO_TIMER_CTRL, al // AL = ((AL & BH) | BL)
+	out WS_TIMER_CTRL_PORT, al // AL = ((AL & BH) | BL)
 
 	// Disable/enable interrupt
 	mov bh, 0x7F
 	ror bh, cl // BH = shifted IRQ mask
-	in al, IO_HWINT_ENABLE
+	in al, WS_INT_ENABLE_PORT
 	and al, bh
 	pop bx
 	shl bl, 7
 	shr bl, cl // BL = shifted IRQ value
 	or al, bl
-	out IO_HWINT_ENABLE, al // AL = ((AL & BH) | BL)
+	out WS_INT_ENABLE_PORT, al // AL = ((AL & BH) | BL)
 
 	ret
 

@@ -48,9 +48,9 @@ sys_interrupt_set_hook:
     mov al, 1
     shl al, cl
     mov cl, al
-    in al, IO_HWINT_ENABLE
+    in al, WS_INT_ENABLE_PORT
     or al, cl
-    out IO_HWINT_ENABLE, al
+    out WS_INT_ENABLE_PORT, al
     pop ax
 
     // AH:AL = 00nn

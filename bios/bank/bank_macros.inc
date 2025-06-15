@@ -70,13 +70,13 @@
 #if defined(BIOS_BANK_MAPPER_2003)
 .macro bank_map_dx_unsafe
     add dl, dl
-    add dl, IO_BANK_2003_RAM
+    add dl, WS_CART_EXTBANK_RAM_PORT
 .endm
 .macro bank_map_dx
     xor dh, dh
     add dl, dl
-    add dl, IO_BANK_2003_RAM
-    cmp dl, IO_BANK_2003_ROM1
+    add dl, WS_CART_EXTBANK_RAM_PORT
+    cmp dl, WS_CART_EXTBANK_ROM1_PORT
     ja 1f
 .endm
 .macro bank_map_read_ax_dx
@@ -86,19 +86,19 @@
     out dx, ax
 .endm
 .macro bank_map_read_ax_sram
-    in ax, IO_BANK_2003_RAM
+    in ax, WS_CART_EXTBANK_RAM_PORT
 .endm
 .macro bank_map_write_ax_sram
-    out IO_BANK_2003_RAM, ax
+    out WS_CART_EXTBANK_RAM_PORT, ax
 .endm
 #else
 .macro bank_map_dx_unsafe
-    add dl, IO_BANK_RAM
+    add dl, WS_CART_BANK_RAM_PORT
 .endm
 .macro bank_map_dx
     xor dh, dh
-    add dl, IO_BANK_RAM
-    cmp dl, IO_BANK_ROM1
+    add dl, WS_CART_BANK_RAM_PORT
+    cmp dl, WS_CART_BANK_ROM1_PORT
     ja 1f
 .endm
 .macro bank_map_read_ax_dx
@@ -108,10 +108,10 @@
     out dx, al
 .endm
 .macro bank_map_read_ax_sram
-    in al, IO_BANK_RAM
+    in al, WS_CART_BANK_RAM_PORT
 .endm
 .macro bank_map_write_ax_sram
-    out IO_BANK_RAM, al
+    out WS_CART_BANK_RAM_PORT, al
 .endm
 #endif
 
@@ -172,7 +172,7 @@
     bank_map_write_ax_sram
 
     shr ax, 15
-    out IO_CART_FLASH, al
+    out WS_CART_BANK_FLASH_PORT, al
 
     // Set segment register to 0x1000
     mov ax, 0x1000
@@ -180,7 +180,7 @@
 .endm
 .macro bank_rw_bx_to_segment_end_unsafe
     xor ax, ax
-    out IO_CART_FLASH, al
+    out WS_CART_BANK_FLASH_PORT, al
 
     // Restore old SRAM bank
     pop ax

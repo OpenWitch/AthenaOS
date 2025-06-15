@@ -48,7 +48,7 @@ __comm_wait_timeout:
 
 1:
     xor ax, ax
-    in al, IO_SERIAL_STATUS
+    in al, WS_UART_CTRL_PORT
     and al, bh
     jnz 8f // received mask?
 
@@ -82,7 +82,7 @@ __comm_wait_timeout:
     jmp 9f
 
 8:
-    test al, SERIAL_OVERRUN
+    test al, WS_UART_CTRL_RX_OVERRUN
     jz 9f // not overrun? (only checked if overrun in mask)
     mov ah, 2 // return overrun
 

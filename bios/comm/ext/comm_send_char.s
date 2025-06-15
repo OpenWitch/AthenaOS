@@ -38,7 +38,7 @@ comm_send_char:
     push bx
     push cx
 
-    mov bh, (SERIAL_TX_READY)
+    mov bh, (WS_UART_CTRL_TX_READY)
     ss mov cx, [comm_send_timeout]
     call __comm_wait_timeout
     test ah, ah
@@ -46,7 +46,7 @@ comm_send_char:
 
     // send character
     mov al, bl
-    out IO_SERIAL_DATA, al
+    out WS_UART_DATA_PORT, al
 
     // return success code
     xor ax, ax

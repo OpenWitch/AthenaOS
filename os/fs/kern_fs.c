@@ -21,8 +21,7 @@
  */
 
 #include <string.h>
-#include <ws/cartridge.h>
-#include <ws/util.h>
+#include <ws.h>
 #include "common.h"
 #include "sys/bios.h"
 

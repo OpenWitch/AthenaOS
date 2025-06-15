@@ -135,8 +135,8 @@ hw_irq_vblank_handler:
     pop ds
     pop cx
     
-    mov al, HWINT_VBLANK
-    mov bx, offset (hw_irq_hook_table + (HWINT_IDX_VBLANK * 8))
+    mov al, WS_INT_ENABLE_VBLANK
+    mov bx, offset (hw_irq_hook_table + (WS_INT_VBLANK * 8))
     call irq_wrap_routine
 
     pop bx

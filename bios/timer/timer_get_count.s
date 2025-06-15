@@ -38,6 +38,6 @@ timer_get_count:
     shl al, 1
     xor dh, dh
     mov dl, al
-    add dl, 0xA8
+    add dl, WS_TIMER_HBL_COUNTER_PORT
     in ax, dx
     ret

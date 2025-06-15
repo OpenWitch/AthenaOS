@@ -88,18 +88,18 @@ error_handle_start:
 
 	// Disable interrupts
 	xor ax, ax
-	out IO_HWINT_ENABLE, al
+	out WS_INT_ENABLE_PORT, al
 
 	// Initialize text screen
 	mov ax, 0x2100 // Set screen 1 location to 0x3000
 	mov bl, (0x3000 >> 11)
 	int 0x12
 	mov ax, 0x9BDF // Initialize LCD shade LUT
-	out IO_LCD_SHADE_45, ax
+	out WS_LCD_SHADE_45_PORT, ax
 	mov ax, 0x0246
-	out IO_LCD_SHADE_01, ax
+	out WS_LCD_SHADE_01_PORT, ax
 	mov ax, 0x0257 // Set palette 0 colors
-	out IO_SCR_PAL_0, ax
+	out WS_SCR_PAL_0_PORT, ax
 	mov ax, 0x0200 // Set mode to 0 (ASCII)
 	xor bx, bx
 	int 0x13
@@ -110,9 +110,9 @@ error_handle_start:
 	xor ax, ax // Initialize screen
 	int 0x13
 
-	in al, IO_SYSTEM_CTRL2
+	in al, WS_SYSTEM_CTRL_COLOR_PORT
 	and al, 0x9F
-	out IO_SYSTEM_CTRL2, al
+	out WS_SYSTEM_CTRL_COLOR_PORT, al
 	ss mov word ptr [0xFE00], 0x0FFF
 	ss mov word ptr [0xFE06], 0x0000
 

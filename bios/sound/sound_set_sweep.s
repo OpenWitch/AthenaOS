@@ -40,6 +40,6 @@ sound_set_sweep:
 	push ax
 	mov al, bl
 	mov ah, cl
-	out IO_SND_SWEEP, ax
+	out WS_SOUND_SWEEP_PORT, ax
 	pop ax
 	ret

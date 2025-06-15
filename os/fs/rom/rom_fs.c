@@ -280,7 +280,7 @@ const fent_t *fs_init(void) {
     if (rom_fs_footer->magic != ROM_FS_FOOTER_MAGIC) {
         text_screen_init();
         text_put_string(2, 8, "ROM filesystem not found");
-        while(1) cpu_halt();
+        while(1) ia16_halt();
     }
 
     fs_newfs(root_fs);

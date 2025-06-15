@@ -38,6 +38,6 @@
 sound_set_output:
 	push ax
 	mov al, bl
-	out IO_SND_OUT_CTRL, al
+	out WS_SOUND_OUT_CTRL_PORT, al
 	pop ax
 	ret

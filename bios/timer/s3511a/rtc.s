@@ -28,38 +28,38 @@
 
 __rtc_wait_ready:
 1:
-    in al, IO_CART_RTC_CTRL
-    test al, (CART_RTC_READY | CART_RTC_ACTIVE)
+    in al, WS_CART_RTC_CTRL_PORT
+    test al, (WS_CART_RTC_CTRL_READY | WS_CART_RTC_CTRL_ACTIVE)
     jz 2f
-    test al, CART_RTC_READY
+    test al, WS_CART_RTC_CTRL_READY
     jz 1b
 2:
     ret
 
 __rtc_read_byte:
     call __rtc_wait_ready
-    in al, IO_CART_RTC_DATA
+    in al, WS_CART_RTC_DATA_PORT
     ret
 
 __rtc_write_byte:
     push ax
     call __rtc_wait_ready
     pop ax
-    out IO_CART_RTC_DATA, al
+    out WS_CART_RTC_DATA_PORT, al
     ret
     
 __rtc_read_start:
     push ax
     call __rtc_wait_ready
     pop ax
-    out IO_CART_RTC_CTRL, al
+    out WS_CART_RTC_CTRL_PORT, al
     ret
 
 __rtc_write_start:
     push ax
     call __rtc_wait_ready
     pop ax
-    out IO_CART_RTC_CTRL, ax
+    out WS_CART_RTC_CTRL_PORT, ax
     ret
     
 /**
@@ -143,7 +143,7 @@ rtc_enable_alarm:
     call __bin_to_bcd_al
     call __rtc_write_byte
     // Write status
-    mov ax, ((RTC_STATUS_INT_ALARM | RTC_STATUS_24_HOUR) << 8) | 0x12
+    mov ax, ((WS_RTC_STATUS_INT_ALARM | WS_RTC_STATUS_24_HOUR) << 8) | 0x12
     call __rtc_write_start
     pop ax
     ret
@@ -157,7 +157,7 @@ rtc_init:
     call __rtc_read_byte
 
     // Was power loss detected?
-    test al, RTC_STATUS_POWER_LOST
+    test al, WS_RTC_STATUS_POWER_LOST
     jnz 1f
     pop ax
     ret
@@ -184,7 +184,7 @@ rtc_reset:
 rtc_disable_alarm:
     push ax
     // Write status
-    mov ax, ((RTC_STATUS_24_HOUR) << 8) | 0x12
+    mov ax, ((WS_RTC_STATUS_24_HOUR) << 8) | 0x12
     call __rtc_write_start
     pop ax
     ret

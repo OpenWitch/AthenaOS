@@ -36,5 +36,5 @@
  */
 	.global sound_get_output
 sound_get_output:
-	in al, IO_SND_OUT_CTRL
+	in al, WS_SOUND_OUT_CTRL_PORT
 	ret

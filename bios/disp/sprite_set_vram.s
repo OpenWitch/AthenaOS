@@ -36,6 +36,6 @@
 sprite_set_vram:
     push ax
     mov al, bl
-    out IO_SPR_BASE, al
+    out WS_SPR_BASE_PORT, al
     pop ax
     ret

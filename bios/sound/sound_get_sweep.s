@@ -37,5 +37,5 @@
  */
 	.global sound_get_sweep
 sound_get_sweep:
-	in ax, IO_SND_SWEEP
+	in ax, WS_SOUND_SWEEP_PORT
 	ret

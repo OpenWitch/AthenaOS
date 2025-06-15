@@ -36,5 +36,5 @@
  */
 	.global sound_get_channel
 sound_get_channel:
-	in al, IO_SND_CH_CTRL
+	in al, WS_SOUND_CH_CTRL_PORT
 	ret

@@ -34,7 +34,7 @@
  */
     .global lcd_get_color
 lcd_get_color:
-    out IO_LCD_SHADE_45, ax
+    out WS_LCD_SHADE_45_PORT, ax
     mov dx, ax
-    out IO_LCD_SHADE_01, ax
+    out WS_LCD_SHADE_01_PORT, ax
     ret

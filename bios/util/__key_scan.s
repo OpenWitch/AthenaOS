@@ -31,23 +31,23 @@
     .global __key_scan
 __key_scan:
     mov al, 0x10
-    out IO_KEY_SCAN, al
+    out WS_KEY_SCAN_PORT, al
     daa
-    in  al, IO_KEY_SCAN
+    in  al, WS_KEY_SCAN_PORT
     and al, 0x0F
     mov ch, al
 
     mov al, 0x20
-    out IO_KEY_SCAN, al
+    out WS_KEY_SCAN_PORT, al
     daa
-    in  al, IO_KEY_SCAN
+    in  al, WS_KEY_SCAN_PORT
     shl al, 4
     mov cl, al
 
     mov al, 0x40
-    out IO_KEY_SCAN, al
+    out WS_KEY_SCAN_PORT, al
     daa
-    in  al, IO_KEY_SCAN
+    in  al, WS_KEY_SCAN_PORT
     and al, 0x0F
     or  cl, al
 

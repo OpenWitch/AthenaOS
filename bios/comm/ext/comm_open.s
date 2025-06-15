@@ -36,8 +36,8 @@ comm_open:
     push ax
     ss mov al, [comm_baudrate]
     shl al, 6
-    and al, SERIAL_BAUD_38400
-    or al, (SERIAL_ENABLE | SERIAL_OVERRUN_RESET)
-    out IO_SERIAL_STATUS, al
+    and al, WS_UART_CTRL_BAUD_MASK
+    or al, (WS_UART_CTRL_ENABLE | WS_UART_CTRL_RX_OVERRUN_RESET)
+    out WS_UART_CTRL_PORT, al
     pop ax
     ret

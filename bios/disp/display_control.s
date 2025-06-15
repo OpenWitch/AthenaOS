@@ -36,6 +36,6 @@
 display_control:
     push ax
     mov ax, bx
-    out IO_DISPLAY_CTRL, ax
+    out WS_DISPLAY_CTRL_PORT, ax
     pop ax
     ret

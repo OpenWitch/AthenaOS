@@ -38,18 +38,18 @@ comm_receive_with_timeout:
     push bx
 
     // Clear overrun, in case it occured before.
-    in al, IO_SERIAL_STATUS
-    or al, SERIAL_OVERRUN_RESET
-    out IO_SERIAL_STATUS, al
+    in al, WS_UART_CTRL_PORT
+    or al, WS_UART_CTRL_RX_OVERRUN_RESET
+    out WS_UART_CTRL_PORT, al
 
-    mov bh, (SERIAL_OVERRUN | SERIAL_RX_READY)
+    mov bh, (WS_UART_CTRL_RX_OVERRUN | WS_UART_CTRL_RX_READY)
     call __comm_wait_timeout
     test ah, ah
     jnz 8f
 
     // receive character
     xor ax, ax
-    in al, IO_SERIAL_DATA
+    in al, WS_UART_DATA_PORT
     jmp 9f
 
 8:

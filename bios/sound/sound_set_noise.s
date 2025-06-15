@@ -38,6 +38,6 @@
 sound_set_noise:
 	push ax
 	mov al, bl
-	out IO_SND_NOISE_CTRL, al
+	out WS_SOUND_NOISE_CTRL_PORT, al
 	pop ax
 	ret

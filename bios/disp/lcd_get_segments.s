@@ -34,5 +34,5 @@
  */
     .global lcd_get_segments
 lcd_get_segments:
-    in al, IO_LCD_SEG
+    in al, WS_LCD_ICON_PORT
     ret

@@ -31,7 +31,7 @@ __attribute__((section(".sramwork")))
 SRAMWork sramwork;
 
 int main(void) {
-    outportb(IO_BANK_RAM, BANK_OSWORK);
+    outportb(WS_CART_BANK_RAM_PORT, BANK_OSWORK);
 
     sramwork._os_version = 0x1963; // version 1.9.99
 
@@ -45,7 +45,7 @@ int main(void) {
         exec_resource = MK_FP(exec_segment + (executable->resource >> 4), executable->resource & 0xF);
     }
 
-    outportb(IO_BANK_RAM, BANK_USERDS0);
+    outportb(WS_CART_BANK_RAM_PORT, BANK_USERDS0);
 
     proc_func_load_t start_func = MK_FP(exec_segment, 0);
     uint16_t main_func_ofs = start_func();

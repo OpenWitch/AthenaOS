@@ -36,5 +36,5 @@
  */
 	.global sound_get_noise
 sound_get_noise:
-	in al, IO_SND_NOISE_CTRL
+	in al, WS_SOUND_NOISE_CTRL_PORT
 	ret

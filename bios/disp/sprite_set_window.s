@@ -39,9 +39,9 @@
 sprite_set_window:
     push ax
     mov ax, bx
-    out IO_SPR_WIN_X1, ax
+    out WS_SPR_WIN_X1_PORT, ax
     add al, cl
     add ah, ch
-    out IO_SPR_WIN_X2, ax
+    out WS_SPR_WIN_X2_PORT, ax
     pop ax
     ret

@@ -36,11 +36,11 @@
 lcd_set_sleep:
     pusha
 
-    in al, IO_LCD_SEG
+    in al, WS_LCD_ICON_PORT
     and al, 0xFE
     and bl, 0x01
     or al, bl
-    out IO_LCD_SEG, al
+    out WS_LCD_ICON_PORT, al
 
     popa
     ret

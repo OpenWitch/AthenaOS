@@ -34,6 +34,6 @@
  */
     .global lcd_get_sleep
 lcd_get_sleep:
-    in al, IO_LCD_CTRL
-    and ax, 0x01
+    in al, WS_LCD_CTRL_PORT
+    and ax, WS_LCD_CTRL_SLEEP_MASK
     ret

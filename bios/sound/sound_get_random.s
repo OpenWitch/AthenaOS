@@ -37,5 +37,5 @@
  */
 	.global sound_get_random
 sound_get_random:
-	in ax, IO_SND_RANDOM
+	in ax, WS_SOUND_NOISE_LFSR_PORT
 	ret

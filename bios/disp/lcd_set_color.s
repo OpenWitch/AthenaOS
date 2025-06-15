@@ -36,8 +36,8 @@
 lcd_set_color:
     push ax
     mov ax, cx
-    out IO_LCD_SHADE_45, ax
+    out WS_LCD_SHADE_45_PORT, ax
     mov ax, bx
-    out IO_LCD_SHADE_01, ax
+    out WS_LCD_SHADE_01_PORT, ax
     pop ax
     ret

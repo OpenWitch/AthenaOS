@@ -38,6 +38,6 @@ sprite_set_range:
     push ax
     mov al, bl
     mov ah, cl
-    out IO_SPR_FIRST, ax
+    out WS_SPR_FIRST_PORT, ax
     pop ax
     ret

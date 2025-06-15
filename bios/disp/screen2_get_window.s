@@ -37,9 +37,9 @@
  */
     .global screen2_get_window
 screen2_get_window:
-    in ax, IO_SCR2_WIN_X2
+    in ax, WS_SCR2_WIN_X2_PORT
     mov dx, ax
-    in ax, IO_SCR2_WIN_X1
+    in ax, WS_SCR2_WIN_X1_PORT
 
     // DX = bottom-right, AX = top-left
     sub dl, al

@@ -37,9 +37,9 @@
  */
     .global sprite_get_window
 sprite_get_window:
-    in ax, IO_SPR_WIN_X2
+    in ax, WS_SPR_WIN_X2_PORT
     mov dx, ax
-    in ax, IO_SPR_WIN_X1
+    in ax, WS_SPR_WIN_X1_PORT
 
     // DX = bottom-right, AX = top-left
     sub dl, al

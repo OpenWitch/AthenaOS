@@ -36,6 +36,6 @@
 lcd_set_segments:
     push ax
     mov al, bl
-    out IO_LCD_SEG, al
+    out WS_LCD_ICON_PORT, al
     pop ax
     ret

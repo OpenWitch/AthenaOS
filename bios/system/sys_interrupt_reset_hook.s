@@ -56,10 +56,10 @@ sys_interrupt_reset_hook:
     shl al, cl
     not al
     mov cl, al
-    in al, IO_HWINT_ENABLE
+    in al, WS_INT_ENABLE_PORT
     and al, cl
     or al, BIOS_REQUIRED_IRQ_MASK
-    out IO_HWINT_ENABLE, al
+    out WS_INT_ENABLE_PORT, al
     pop ax
 
     // Clear interrupt hook

@@ -58,7 +58,7 @@ irq_wrap_routine:
 1:
     // Acknowledge interrupt
     pop ax
-    out IO_HWINT_ACK, al
+    out WS_INT_ACK_PORT, al
     ret
 
 .macro irq_default_handler irq,idx
@@ -74,31 +74,31 @@ irq_wrap_routine:
 
     .global hw_irq_serial_tx_handler
 hw_irq_serial_tx_handler:
-    irq_default_handler HWINT_SERIAL_TX,HWINT_IDX_SERIAL_TX
+    irq_default_handler WS_INT_ENABLE_UART_TX,WS_INT_UART_TX
 
     .global hw_irq_key_handler
 hw_irq_key_handler:
-    irq_default_handler HWINT_KEY,HWINT_IDX_KEY
+    irq_default_handler WS_INT_ENABLE_KEY_SCAN,WS_INT_KEY_SCAN
 
     .global hw_irq_cartridge_handler
 hw_irq_cartridge_handler:
-    irq_default_handler HWINT_CARTRIDGE,HWINT_IDX_CARTRIDGE
+    irq_default_handler WS_INT_ENABLE_CARTRIDGE,WS_INT_CARTRIDGE
 
     .global hw_irq_serial_rx_handler
 hw_irq_serial_rx_handler:
-    irq_default_handler HWINT_SERIAL_RX,HWINT_IDX_SERIAL_RX
+    irq_default_handler WS_INT_ENABLE_UART_RX,WS_INT_UART_RX
 
     .global hw_irq_line_handler
 hw_irq_line_handler:
-    irq_default_handler HWINT_LINE,HWINT_IDX_LINE
+    irq_default_handler WS_INT_ENABLE_LINE_MATCH,WS_INT_LINE_MATCH
 
     .global hw_irq_vblank_timer_handler
 hw_irq_vblank_timer_handler:
-    irq_default_handler HWINT_VBLANK_TIMER,HWINT_IDX_VBLANK_TIMER
+    irq_default_handler WS_INT_ENABLE_VBL_TIMER,WS_INT_VBL_TIMER
 
     .global hw_irq_hblank_timer_handler
 hw_irq_hblank_timer_handler:
-    irq_default_handler HWINT_HBLANK_TIMER,HWINT_IDX_HBLANK_TIMER
+    irq_default_handler WS_INT_ENABLE_HBL_TIMER,WS_INT_HBL_TIMER
 
     .section ".bss"
     .global hw_irq_hook_table

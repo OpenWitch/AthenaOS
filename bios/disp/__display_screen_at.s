@@ -39,7 +39,7 @@ __display_screen_location:
 	mov cl, 11
 	sub cl, al // CL = 11 (SCREEN1), 7 (SCREEN2)
 
-	in al, IO_SCR_BASE
+	in al, WS_SCR_BASE_PORT
 	shl ax, cl
 	and ax, 0x7800
 	mov di, ax
@@ -60,7 +60,7 @@ __display_screen_at:
 	mov cl, 11
 	sub cl, al // CL = 11 (SCREEN1), 7 (SCREEN2)
 
-	in al, IO_SCR_BASE
+	in al, WS_SCR_BASE_PORT
 	shl ax, cl
 	and ax, 0x7800
 	mov di, ax
@@ -84,7 +84,7 @@ __display_screen_at:
 	.section ".text.__display_sprite_location", "ax"
 	.global __display_sprite_location
 __display_sprite_location:
-	in al, IO_SPR_BASE
+	in al, WS_SPR_BASE_PORT
 	shl ax, 9
 	and ah, 0x7E
 	mov di, ax
@@ -100,7 +100,7 @@ __display_sprite_at:
 	add di, di
 	add di, di
 
-	in al, IO_SPR_BASE
+	in al, WS_SPR_BASE_PORT
 	shl ax, 9
 	and ah, 0x7E
 	add di, ax

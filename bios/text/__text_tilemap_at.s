@@ -35,7 +35,7 @@ __text_tilemap_at:
     ss mov cl, [text_screen]
     add cl, cl
     add cl, cl
-    in al, IO_SCR_BASE
+    in al, WS_SCR_BASE_PORT
     shr al, cl
     and al, 0xF
     shl ax, 11  // assumption: AL = 0

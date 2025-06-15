@@ -39,7 +39,7 @@
 sound_get_volume:
 	push dx
 
-	mov dx, IO_SND_VOL_CH1
+	mov dx, WS_SOUND_VOL_CH1_PORT
 	add dl, al
 
 	in al, dx

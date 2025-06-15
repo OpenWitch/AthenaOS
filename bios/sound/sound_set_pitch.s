@@ -40,7 +40,7 @@ sound_set_pitch:
 	push ax
 	push dx
 
-	mov dx, IO_SND_FREQ_CH1
+	mov dx, WS_SOUND_FREQ_CH1_PORT
 	add dl, al
 	add dl, al
 

@@ -73,7 +73,7 @@ _start:
 #if BIOS_BANK_ROM_FORCE_DYNAMIC
 	// Intiialize bank_rom_offset
 	mov ah, 0xFF
-	in al, IO_BANK_ROM_LINEAR
+	in al, WS_CART_BANK_ROML_PORT
 	shl ax, 4
 	or al, 0x08
 	ss mov bank_rom_offset, ax
@@ -110,10 +110,10 @@ _start:
 
 	// Use IRQ vector 0x28 (required by sound.il)
 	mov al, 0x28
-	out IO_HWINT_VECTOR, al
+	out WS_INT_VECTOR_PORT, al
 	// Enable VBlank interrupt by default
 	mov al, BIOS_REQUIRED_IRQ_MASK
-	out IO_HWINT_ENABLE, al
+	out WS_INT_ENABLE_PORT, al
 	sti
 
 	// initialize heap
@@ -123,28 +123,28 @@ _start:
 
 	// initialize LCD shade LUT
 	mov ax, 0x6420
-	out IO_LCD_SHADE_01, ax
+	out WS_LCD_SHADE_01_PORT, ax
 	mov ax, 0xFCA8
-	out IO_LCD_SHADE_45, ax
+	out WS_LCD_SHADE_45_PORT, ax
 
 	// initialize default palette
 	mov ax, 0x7530
-	out IO_SCR_PAL_0, ax
+	out WS_SCR_PAL_0_PORT, ax
 	mov ax, 0x0357
-	out IO_SCR_PAL_1, ax
+	out WS_SCR_PAL_1_PORT, ax
 
 	// boot in JPN2 mode by default
 	mov al, 0x07
-	out IO_SPR_BASE, al
+	out WS_SPR_BASE_PORT, al
 	mov al, 0x32
-	out IO_SCR_BASE, al
+	out WS_SCR_BASE_PORT, al
 	mov ah, 0x02
 	mov bl, 1
 	int 0x13
 	xor ax, ax
 	int 0x13
-	mov al, 0x02
-	out IO_DISPLAY_CTRL, al
+	mov al, WS_DISPLAY_CTRL_SCR2_ENABLE
+	out WS_DISPLAY_CTRL_PORT, al
 
 	// initialize sound system
 	call sound_init

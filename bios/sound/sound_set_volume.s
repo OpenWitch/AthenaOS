@@ -40,7 +40,7 @@ sound_set_volume:
 	push ax
 	push dx
 
-	mov dx, IO_SND_VOL_CH1
+	mov dx, WS_SOUND_VOL_CH1_PORT
 	add dl, al
 
 	mov al, bl

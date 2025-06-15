@@ -40,34 +40,34 @@ sys_sleep:
     pop ds
 
     // BL = old interrupt mask
-    in al, IO_HWINT_ENABLE
+    in al, WS_INT_ENABLE_PORT
     mov bl, al
 
     // Sleep until VBlank
     // TODO: Is this necessary?
-    mov al, HWINT_VBLANK
-    // out IO_HWINT_ACK, al
-    out IO_HWINT_ENABLE, al
+    mov al, WS_INT_ENABLE_VBLANK
+    // out WS_INT_ACK_PORT, al
+    out WS_INT_ENABLE_PORT, al
     hlt
     nop
-    // out IO_HWINT_ACK, al
+    // out WS_INT_ACK_PORT, al
 
     // Turn off LCD panel
-    in al, IO_LCD_CTRL
+    in al, WS_LCD_CTRL_PORT
     // BH = old LCD control
     mov bh, al
-    or al, LCD_SLEEP_MASK
-    out IO_LCD_CTRL, al
+    or al, WS_LCD_CTRL_SLEEP_MASK
+    out WS_LCD_CTRL_PORT, al
 
     // Sleep given provided mask
     mov al, [sys_keepalive_int]
 
-    // out IO_HWINT_ACK, al
-    out IO_HWINT_ENABLE, al
+    // out WS_INT_ACK_PORT, al
+    out WS_INT_ENABLE_PORT, al
 1:
     hlt
     nop
-    // out IO_HWINT_ACK, al
+    // out WS_INT_ACK_PORT, al
 
     call __key_scan
     mov ax, cx
@@ -79,19 +79,19 @@ sys_sleep:
 
     // Sleep until VBlank
     // TODO: Is this necessary?
-    mov al, HWINT_VBLANK
-    // out IO_HWINT_ACK, al
-    out IO_HWINT_ENABLE, al
+    mov al, WS_INT_ENABLE_VBLANK
+    // out WS_INT_ACK_PORT, al
+    out WS_INT_ENABLE_PORT, al
     hlt
     nop
-    // out IO_HWINT_ACK, al
+    // out WS_INT_ACK_PORT, al
 
     // Restore LCD panel control
     mov al, bh
-    out IO_LCD_CTRL, al
+    out WS_LCD_CTRL_PORT, al
     // Restore interrupt mask
     mov al, bl
-    out IO_HWINT_ENABLE, al
+    out WS_INT_ENABLE_PORT, al
 
     pop ds
 
