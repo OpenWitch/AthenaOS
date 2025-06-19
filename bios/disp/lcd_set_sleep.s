@@ -37,8 +37,8 @@ lcd_set_sleep:
     pusha
 
     in al, WS_LCD_ICON_PORT
-    and al, 0xFE
-    and bl, 0x01
+    and al, ~WS_LCD_CTRL_DISPLAY_MASK
+    and bl, WS_LCD_CTRL_DISPLAY_MASK
     or al, bl
     out WS_LCD_ICON_PORT, al
 
