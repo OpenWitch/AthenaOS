@@ -292,7 +292,11 @@ comm_receive_block:
 	sub cx, ax
 	add bp, ax
 	xchg ax, cx
-	rep movsb
+	shr cx, 1
+	rep movsw
+	jnc 6f
+	movsb
+6:
 	xchg ax, cx
 
 4:
@@ -306,11 +310,11 @@ comm_receive_block:
 	mov ax, 0
 	jz 9f
 
-	// Wait ~2ms
+	// Wait ~0.2ms
 	push cx
 	pushf
 	sti
-	mov cx, 1200
+	mov cx, 120
 1:
 	loop 1b
 
