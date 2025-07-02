@@ -95,4 +95,4 @@ with open(args.output, "wb") as fout:
 
     # write OS footer
     fout.seek(rom_size - (64 * 1024) - 16)
-    fout.write(struct.pack('<BHH', 0xEA, 0x0000, 0xE000))
+    fout.write(struct.pack('<BHHBH', 0xEA, 0x0000, 0xE000, 0x00, int((len(soft_data) + 127) / 128)))
