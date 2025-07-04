@@ -115,8 +115,8 @@ comm_send_block:
 	stosw
 
 	// Data
-	push cx
 	inc cx
+	push cx
 	shr cx, 1
 	rep movsw
 	pop cx
@@ -135,7 +135,7 @@ comm_send_block:
 	and ax, NILE_SPI_CFG_MASK
 	xor ax, (NILE_SPI_CNT_MCU | NILE_SPI_BUFFER_IDX | NILE_SPI_MODE_WRITE | NILE_SPI_START)
 	// CX = data length, packet length = CX + 2, SPI length = packet length - 1
-	inc cx
+	// inc cx (done above)
 	or ax, cx
 	out IO_NILE_SPI_CNT, ax
 
@@ -284,6 +284,9 @@ comm_receive_block:
 	shr ax, 1
 	// If empty, skip copy
 	jz 4f
+	// If larger than the number of bytes to read, error out
+	cmp ax, cx
+	ja 8f
 
 	// CX = number of bytes to read
 	// AX = number of bytes read
