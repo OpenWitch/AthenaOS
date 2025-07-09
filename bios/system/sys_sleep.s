@@ -56,7 +56,7 @@ sys_sleep:
     in al, WS_LCD_CTRL_PORT
     // BH = old LCD control
     mov bh, al
-    or al, WS_LCD_CTRL_SLEEP_MASK
+    or al, WS_LCD_CTRL_DISPLAY_MASK
     out WS_LCD_CTRL_PORT, al
 
     // Sleep given provided mask
