@@ -90,6 +90,12 @@ comm_send_block:
 	push dx
 	push si
 	push di
+	push es
+
+	in ax, IO_BANK_2003_RAM
+	push ax
+	mov ax, NILE_SEG_RAM_SPI_TX
+	out IO_BANK_2003_RAM, ax
 
 	cld
 
@@ -98,12 +104,6 @@ comm_send_block:
 	ss add dx, [comm_send_timeout] // DX = final tick count
 
 	// Write send command
-	in ax, IO_BANK_2003_RAM
-	push ax
-	mov ax, NILE_SEG_RAM_SPI_TX
-	out IO_BANK_2003_RAM, ax
-
-	push es
 	push 0x1000
 	pop es
 	xor di, di
@@ -112,19 +112,24 @@ comm_send_block:
 	mov ax, cx
 	shl ax, 7
 	or ax, 0x41
-	stosw
+	es mov [di], ax
 
-	// Data
-	inc cx
+	// Wait for SPI ready
+	call __nile_spi_wait_ready
+	jnz 9f
+
+	// SPI control, send 2-byte packet
+	in ax, IO_NILE_SPI_CNT
+	and ax, NILE_SPI_CFG_MASK
+	xor ax, (NILE_SPI_CNT_MCU | NILE_SPI_BUFFER_IDX | NILE_SPI_MODE_WRITE | NILE_SPI_START | 1)
+	out IO_NILE_SPI_CNT, ax
+
+	// Write data to buffer
 	push cx
+	inc cx
 	shr cx, 1
 	rep movsw
 	pop cx
-
-	pop es
-
-	pop ax
-	out IO_BANK_2003_RAM, ax
 
 	// Wait for SPI ready
 	call __nile_spi_wait_ready
@@ -135,7 +140,7 @@ comm_send_block:
 	and ax, NILE_SPI_CFG_MASK
 	xor ax, (NILE_SPI_CNT_MCU | NILE_SPI_BUFFER_IDX | NILE_SPI_MODE_WRITE | NILE_SPI_START)
 	// CX = data length, packet length = CX + 2, SPI length = packet length - 1
-	// inc cx (done above)
+	dec cx
 	or ax, cx
 	out IO_NILE_SPI_CNT, ax
 
@@ -150,13 +155,15 @@ comm_send_block:
 	xor ax, (NILE_SPI_CNT_MCU | NILE_SPI_BUFFER_IDX | NILE_SPI_MODE_WAIT_READ | NILE_SPI_START | (4 - 1))
 	out IO_NILE_SPI_CNT, ax
 
-	// Wait for SPI ready
-	call __nile_spi_wait_ready
-	jnz 9f
-
 	// Done
 	xor ax, ax
 9:
+	mov di, ax
+	pop ax
+	out IO_BANK_2003_RAM, ax
+	mov ax, di
+
+	pop es
 	pop di
 	pop si
 	pop dx
