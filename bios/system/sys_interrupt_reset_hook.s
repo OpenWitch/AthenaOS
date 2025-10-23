@@ -56,6 +56,12 @@ sys_interrupt_reset_hook:
     shl al, cl
     not al
     mov cl, al
+#ifdef ATHENA_FLAVOR_nileswan
+    test cl, 0x9
+    jz 1f
+    ss and [nile_serial_state], cl
+1:
+#endif
     in al, WS_INT_ENABLE_PORT
     and al, cl
     or al, BIOS_REQUIRED_IRQ_MASK

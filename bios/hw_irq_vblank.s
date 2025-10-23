@@ -41,6 +41,36 @@ hw_irq_vblank_handler:
     add word ptr [tick_count], 1
     adc word ptr [tick_count+2], 0
 
+#ifdef ATHENA_FLAVOR_nileswan
+    // === NILE SERIAL TX/RX HANDLER ===
+    // TODO: Wire up to cartridge IRQ once implemented
+    
+    mov al, [nile_serial_state]
+    test al, 0xF0
+    jnz 1f
+
+    test al, 0x1
+    jz 2f
+  
+    push ax
+    mov bx, offset (hw_irq_hook_table + (WS_INT_UART_TX * 8))
+    call irq_wrap_routine
+    pop ax
+2:
+    test al, 0x8
+    jz 1f
+
+    call __nile_check_available
+    test ax, ax
+    jz 1f
+
+    or byte ptr [nile_serial_state], 0x80
+    mov bx, offset (hw_irq_hook_table + (WS_INT_UART_RX * 8))
+    call irq_wrap_routine
+    and byte ptr [nile_serial_state], 0x7F
+1:
+#endif
+
     // === KEY PRESS HANDLER ===
 
     // Scan key presses
@@ -135,11 +165,12 @@ hw_irq_vblank_handler:
     pop ds
     pop cx
     
-    mov al, WS_INT_ENABLE_VBLANK
     mov bx, offset (hw_irq_hook_table + (WS_INT_VBLANK * 8))
     call irq_wrap_routine
 
     pop bx
+    mov al, WS_INT_ENABLE_VBLANK
+    out WS_INT_ACK_PORT, al
     pop ax
     iret
 
@@ -160,3 +191,10 @@ keys_pressed: .word 0
 keys_pressed_repeat: .word 0
     .global key_repeat_timer
 key_repeat_timer:  .byte 0
+#ifdef ATHENA_FLAVOR_nileswan
+// bit 0 - serial TX enabled
+// bit 3 - serial RX enabled
+// bit 7 - serial RX in progress
+    .global nile_serial_state
+nile_serial_state: .byte 0
+#endif

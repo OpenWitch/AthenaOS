@@ -48,6 +48,12 @@ sys_interrupt_set_hook:
     mov al, 1
     shl al, cl
     mov cl, al
+#ifdef ATHENA_FLAVOR_nileswan
+    test cl, 0x9
+    jz 1f
+    ss or [nile_serial_state], cl
+1:
+#endif
     in al, WS_INT_ENABLE_PORT
     or al, cl
     out WS_INT_ENABLE_PORT, al

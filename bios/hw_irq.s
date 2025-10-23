@@ -26,14 +26,12 @@
 
 #include "common.inc"
 
-    // AL = IRQ to acknowledge
     // BX = IRQ offset
-    // assumes AX, BX preserved
+    // clobbers AX, BX
     .global irq_wrap_routine
 irq_wrap_routine:
-    push ax
-    mov ax, ss:[bx]
-    or ax, ss:[bx + 2]
+    ss mov ax, [bx]
+    ss or ax, [bx + 2]
     jz 1f
 
     push cx
@@ -44,7 +42,7 @@ irq_wrap_routine:
     push ds
     push es
 
-    mov ax, ss:[bx + 4]
+    ss mov ax, [bx + 4]
     mov ds, ax
     ss lcall [bx]
 
@@ -56,18 +54,16 @@ irq_wrap_routine:
     pop dx
     pop cx
 1:
-    // Acknowledge interrupt
-    pop ax
-    out WS_INT_ACK_PORT, al
     ret
 
 .macro irq_default_handler irq,idx
     push ax
     push bx
-    mov al, \irq
     mov bx, offset (hw_irq_hook_table + (\idx * 8))
     call irq_wrap_routine
     pop bx
+    mov al, \irq
+    out WS_INT_ACK_PORT, al
     pop ax
     iret
 .endm
