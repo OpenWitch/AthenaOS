@@ -34,11 +34,13 @@
  */
     .global text_get_fontdata
 text_get_fontdata:
-    pusha
+    push bx
+    push cx
+    push dx
+    push si
+    push di
     push ds
     push es
-
-    ss mov bl, [text_mode]
 
     // CX => AX
     // DS:DX => ES:DI
@@ -50,14 +52,23 @@ text_get_fontdata:
     pop es
     mov di, dx
 
-    cmp bl, 1
+    ss cmp byte ptr [text_mode], 1
     ja .no_ascii
     cmp ax, 0x0080
     jb .ascii
-    cmp bl, 1
 .no_ascii:
-    jb .no_sjis
+    cmp ax, 0x80
+    jae .no_table
+    cmp ax, 0x20
+    jb .no_table
+    
+    // AX = text_ank_sjis_table[AX - 0x20]
+    xchg bx, ax
+    add bx, bx
+    cs mov bx, [bx + text_ank_sjis_table - 0x40]
+    xchg bx, ax
 
+.no_table:
     ss lcall offset text_sjis_handler
     mov ax, 0
     jnc .sjis_continue
@@ -79,7 +90,11 @@ text_get_fontdata:
 .finish:
     pop es
     pop ds
-    popa
+    pop di
+    pop si
+    pop dx
+    pop cx
+    pop bx
 
     ret
 
