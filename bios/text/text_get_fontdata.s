@@ -58,7 +58,7 @@ text_get_fontdata:
 .no_ascii:
     jb .no_sjis
 
-    call text_sjis_default_font_handler
+    ss lcall offset text_sjis_handler
     mov ax, 0
     jnc .sjis_continue
 .no_sjis:
@@ -94,6 +94,7 @@ text_get_fontdata:
     // input: AX - Shift-JIS character code
     // output: CX:SI - font data location
     // output: carry - set if no data found
+    .global text_sjis_default_font_handler
 text_sjis_default_font_handler:
     push bx
     push dx
@@ -129,7 +130,7 @@ text_sjis_default_font_handler_finish:
     pop ds
     pop dx
     pop bx
-    ret
+    retf
 
 .not_found:
     pop si

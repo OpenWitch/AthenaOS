@@ -40,7 +40,7 @@ irq_text_handlers:
     .word text_set_palette
     .word text_get_palette
     .word error_handle_irq19 // TODO: text_set_ank_font
-    .word error_handle_irq19 // TODO: text_set_sjis_font
+    .word text_set_sjis_font
     .word text_get_fontdata
     .word text_set_screen
     .word text_get_screen
@@ -63,6 +63,10 @@ text_cursor_color: .byte 1
 text_cursor_rate:  .byte 30
     .global text_screen
 text_screen: .byte 1
+    .global text_sjis_handler
+text_sjis_handler:
+    .word text_sjis_default_font_handler
+    .word 0xF000
 
     .section ".bss"
     .global text_mode
