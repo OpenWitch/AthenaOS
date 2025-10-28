@@ -28,4 +28,5 @@
 
 	.global irq_exit_handler
 irq_exit_handler:
+	cli
 	jmp 0xffff:0x0000
