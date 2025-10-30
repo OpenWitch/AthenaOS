@@ -30,8 +30,16 @@
 __attribute__((section(".sramwork")))
 SRAMWork sramwork;
 
+static void init_proc_context(void) {
+    _pc->_ilib = il_ilib_ptr();
+    _pc->_proc = il_proc_ptr();
+    _pc->_cwfs = rom0_fs;
+    strcpy(_pc->_currentdir, "/rom0");
+}
+
 int main(void) {
     outportb(WS_CART_BANK_RAM_PORT, BANK_OSWORK);
+    init_proc_context();
 
     sramwork._os_version = 0x1963; // version 1.9.99
 
@@ -46,6 +54,7 @@ int main(void) {
     }
 
     outportb(WS_CART_BANK_RAM_PORT, BANK_USERDS0);
+    init_proc_context();
 
     proc_func_load_t start_func = MK_FP(exec_segment, 0);
     uint16_t main_func_ofs = start_func();
