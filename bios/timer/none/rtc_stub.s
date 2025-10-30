@@ -79,6 +79,7 @@ rtc_set_datetime_struct:
     mov si, dx
     mov di, offset rtc_data
 
+    cld
     movsw
     movsw
     movsw
@@ -108,6 +109,7 @@ rtc_get_datetime_struct:
     mov si, offset rtc_data
     mov di, dx
 
+    cld
     movsw
     movsw
     movsw

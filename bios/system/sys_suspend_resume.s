@@ -70,6 +70,7 @@ sys_suspend:
     mov es, ax
 
     cli
+    cld
 
     // Store mono IRAM
     push ds
@@ -166,6 +167,7 @@ sys_resume:
     mov ds, ax
 
     cli
+    cld
 
     // Load mono IRAM
     push ss

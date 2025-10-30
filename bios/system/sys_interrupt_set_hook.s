@@ -41,6 +41,7 @@ sys_interrupt_set_hook:
     push di
     push ds
     push es
+    cld
 
     // Enable interrupt in mask
     push ax
@@ -74,8 +75,10 @@ sys_interrupt_set_hook:
     // DS = BIOS, ES = caller
     mov si, ax
     mov di, dx
-    mov cx, 4
-    rep movsw
+    movsw
+    movsw
+    movsw
+    movsw
 1:
 
     // new vector -> IRQ hook table
@@ -86,8 +89,10 @@ sys_interrupt_set_hook:
     // DS = caller, ES = BIOS
     mov si, bx
     mov di, ax
-    mov cx, 4
-    rep movsw
+    movsw
+    movsw
+    movsw
+    movsw
 
     pop es
     pop ds
