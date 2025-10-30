@@ -39,9 +39,6 @@ sys_interrupt_set_hook:
     push cx
     push si
     push di
-    push ds
-    push es
-    cld
 
     // Enable interrupt in mask
     push ax
@@ -64,14 +61,25 @@ sys_interrupt_set_hook:
     shl ax, 3
     add ax, offset hw_irq_hook_table
 
+    // new vector -> stack
+    push [bx+6]
+    push [bx+4]
+    push [bx+2]
+    push [bx]
+
+    // if old vector = 0, skip
+    test dx, dx
+    jz 1f
+
     // IRQ hook table -> old vector
+    push ds
+    push es
+
     push ss
     push ds
     pop es
     pop ds
-    // if old vector = 0, skip
-    test dx, dx
-    jz 1f
+    cld
     // DS = BIOS, ES = caller
     mov si, ax
     mov di, dx
@@ -79,23 +87,19 @@ sys_interrupt_set_hook:
     movsw
     movsw
     movsw
+
+    pop es
+    pop ds
+
 1:
 
     // new vector -> IRQ hook table
-    push es
-    push ds
-    pop es
-    pop ds
-    // DS = caller, ES = BIOS
-    mov si, bx
-    mov di, ax
-    movsw
-    movsw
-    movsw
-    movsw
+    mov bp, ax
+    pop [bp]
+    pop [bp+2]
+    pop [bp+4]
+    pop [bp+6]
 
-    pop es
-    pop ds
     pop di
     pop si
     pop cx
