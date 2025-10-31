@@ -29,5 +29,8 @@ const fent_t kern_fs_entries[] = {
     {"@ilib", "ilib", __builtin_ia16_static_far_cast(&il_ilib), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
     {"@proc", "proc", __builtin_ia16_static_far_cast(&il_proc), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
     {"@pfs",  "pfs",  __builtin_ia16_static_far_cast(&il_fs),   0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
+#ifdef OS_ENABLE_BUILTIN_BMPSAVER_STUB
+    {"@bmpsaver",  "bmpsaver stub",  __builtin_ia16_static_far_cast(&il_bmpsaver),   0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
+#endif
 };
 const uint16_t kern_fs_num_entries = sizeof(kern_fs_entries) / sizeof(fent_t);

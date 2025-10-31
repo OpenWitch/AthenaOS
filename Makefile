@@ -59,6 +59,8 @@ ifneq ($(BIOS_BANK_MEMORY_IMPL),simple)
 SRC_BIOS    += bios/bank/$(BIOS_BANK_MEMORY_IMPL)
 endif
 
+DEFINES		+= -DOS_ENABLE_BUILTIN_BMPSAVER_STUB
+
 # Tool paths
 # ----------
 

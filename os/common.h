@@ -54,6 +54,7 @@ typedef void __far (*proc_func_entrypoint_t)(int argc, char **argv);
 OS_DEFINE_IL(il_fs, FsIL);
 OS_DEFINE_IL(il_ilib, IlibIL);
 OS_DEFINE_IL(il_proc, ProcIL);
+extern char il_bmpsaver;
 
 #endif
 

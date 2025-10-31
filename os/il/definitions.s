@@ -96,3 +96,27 @@ ILIB_FUNCTION fs_newfs
 ILIB_FUNCTION fs_defrag
 ILIB_FUNCTION fs_space
 ILIB_DEFINE_END fs
+
+#ifdef OS_ENABLE_BUILTIN_BMPSAVER_STUB
+// BMPSaver is a library for taking .BMP screenshots of the console display,
+// primarily meant for aiding developers. Unfortunately, the public WWGP2002
+// release of Dicing Knight mistakenly depends on it, whereas the library
+// itself was never made available in .il format outside of the registered
+// web portal. This provides a stub which should allow such programs to run
+// on these platforms.
+ILIB_DEFINE bmpsaver, 8
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_FUNCTION bmpsaver_stub_func
+ILIB_DEFINE_END bmpsaver
+
+    .global bmpsaver_stub_func
+bmpsaver_stub_func:
+    mov ax, 0xFFFF
+    IA16_RET
+#endif
