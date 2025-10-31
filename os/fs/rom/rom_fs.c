@@ -130,6 +130,9 @@ int fs_open(FS fs, const char __far *filename, int mode, int perms) {
     strncpy(filename_local, filename, MAXFNAME);
 
     ws_bank_with_ram(BANK_OSWORK, {
+        if (mode & ~fs->mode) 
+            return E_FS_PERMISSION_DENIED;
+
         int free_fd;
         for (free_fd = 0; free_fd < MAXFILES; free_fd++)
             if (fhandle(free_fd).ent == NULL) break;
