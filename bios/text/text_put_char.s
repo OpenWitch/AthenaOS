@@ -46,19 +46,25 @@ text_put_char:
     pop ds
     pop es
 
+    mov al, [text_screen]
+    add bl, [text_wx]
+    add bh, [text_wy]
+    call __display_screen_at
+    // DI = pointer to tile
+
     cmp byte ptr [text_mode], TEXT_MODE_ANK
     je text_put_char_ank
 
 text_put_char_sjis:
     sub sp, 8
     mov dx, sp             // DS:DX = destination
+    push [di]
     call text_get_fontdata
+    // TODO: handle error code?
 
-    mov al, bh
-    xor bh, bh
-    mul byte ptr [text_ww]
-    add bx, ax
-    add bx, [text_base]    // BX = text_base = y * text_ww + x
+    pop bx
+    // TODO: how does this handle tiles 512-1023?
+    and bx, 0x1FF
     mov cx, 1              // CX = 1
     call font_set_monodata
 
@@ -70,10 +76,6 @@ text_put_char_ank:
     jb 1f
     mov cx, '?'
 1:
-    mov al, [text_screen]
-    add bl, [text_wx]
-    add bh, [text_wy]
-    call __display_screen_at
     mov al, [text_color]
     shl ax, 9
     add cx, ax

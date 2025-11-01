@@ -65,7 +65,7 @@ text_get_fontdata:
     // AX = text_ank_sjis_table[AX - 0x20]
     xchg bx, ax
     add bx, bx
-    cs mov bx, [bx + text_ank_sjis_table - 0x40]
+    mov bx, [bx + text_ank_sjis_table - 0x40]
     xchg bx, ax
 
 .no_table:
