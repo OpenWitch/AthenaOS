@@ -21,6 +21,7 @@
  */
 
 #include <string.h>
+#include <ws.h>
 #include "common.h"
 #include "fs/fs.h"
 #include "il/ilib.h"
@@ -41,6 +42,14 @@ int main(void) {
     init_proc_context();
 
     sramwork._os_version = 0x1963; // version 1.9.99
+
+    // Memory initialization
+    if (ws_system_is_color_model()) {
+        ws_system_set_mode(WS_MODE_COLOR);
+        // False Shooting Watch depends on this palette entry being set
+        WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
+        ws_system_set_mode(WS_MODE_MONO);
+    }
 
     const fent_t *executable = fs_init();
     uint16_t exec_segment = FP_SEG(executable->loc);

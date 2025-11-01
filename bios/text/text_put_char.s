@@ -33,6 +33,8 @@
  * - BH = Y position
  * - CX = character code
  * Output:
+ *
+ * TODO: accurate out of bounds handling in SJIS modes
  */
     .global text_put_char
 text_put_char:
@@ -43,11 +45,6 @@ text_put_char:
     push ss
     pop ds
     pop es
-
-    cmp bl, [text_ww]
-    jae text_put_char_end
-    cmp bh, [text_wh]
-    jae text_put_char_end
 
     cmp byte ptr [text_mode], TEXT_MODE_ANK
     je text_put_char_ank
@@ -74,6 +71,8 @@ text_put_char_ank:
     mov cx, '?'
 1:
     mov al, [text_screen]
+    add bl, [text_wx]
+    add bh, [text_wy]
     call __display_screen_at
     mov al, [text_color]
     shl ax, 9

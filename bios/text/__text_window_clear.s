@@ -55,10 +55,12 @@ __text_window_clear_loop:
     add di, ax
     // BL = X, BH = Y
     mov bx, [text_wx]
-    call __text_tilemap_at
-    // AX = value to set on screen
+    push di
     // ES:DI = location to write to
-    xchg di, ax
+    mov al, [text_screen]
+    call __display_screen_at
+    // AX = value to set on screen
+    pop ax
     // DX = height counter
     xor dx, dx
     mov dl, [text_wh]

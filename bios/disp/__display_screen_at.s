@@ -68,11 +68,11 @@ __display_screen_at:
 	pop cx
 
 	push bx
-	and bx, 0x001F
+	mov bh, 0
 	add di, bx
 	add di, bx // * 2
 	pop bx
-	and bx, 0x1F00
+	mov bl, 0
 	shr bx, 1
 	shr bx, 1  // (bh >> 2) == ((bx >> 8) << 6)
 	add di, bx

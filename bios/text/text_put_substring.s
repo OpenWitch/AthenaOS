@@ -41,7 +41,13 @@ text_put_substring:
     push di
     push bx
     push cx
+    push dx
+    
     mov si, dx
+
+    // DL = text width
+    ss mov dl, [text_ww]
+
     xor di, di
 1:
     // Load one character, two characters if >= 0x80 (for Shift-JIS)
@@ -59,12 +65,20 @@ text_put_substring:
     call text_put_char
     pop cx
     inc bl
+    cmp bl, dl
+    jb 5f
+
+    // push text to new line
+    mov bl, 0
+    inc bh
+5:
     inc di
     loop 1b
 3:
     // Return number of characters displayed
     // TODO: How is out-of-bounds string writing handled?
     mov ax, di
+    pop dx
     pop cx
     pop bx
     pop di
