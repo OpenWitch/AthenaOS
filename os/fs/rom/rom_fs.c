@@ -165,7 +165,7 @@ int fs_close(int fd) {
 
     ws_bank_with_ram(BANK_OSWORK, {
         if (fhandle(fd).ent == NULL)
-            return E_FS_ERROR;
+            return E_FS_FILE_NOT_OPEN;
         fhandle(fd).ent = NULL;
         return E_FS_SUCCESS;
     });
@@ -211,7 +211,7 @@ int fs_read(int fd, char __far *data, int length) {
 
     ws_bank_with_ram(BANK_OSWORK, {
         if (fhandle(fd).ent == NULL)
-            return E_FS_ERROR;
+            return E_FS_FILE_NOT_OPEN;
         if (!(fhandle(fd).mode & FMODE_R))
             return E_FS_PERMISSION_DENIED;
 
@@ -237,7 +237,7 @@ int fs_write(int fd, const char __far *data, int length) {
 
     ws_bank_with_ram(BANK_OSWORK, {
         if (fhandle(fd).ent == NULL)
-            return E_FS_ERROR;
+            return E_FS_FILE_NOT_OPEN;
         if (!(fhandle(fd).mode & FMODE_W))
             return E_FS_PERMISSION_DENIED;
 
@@ -254,13 +254,16 @@ int fs_write(int fd, const char __far *data, int length) {
 }
 
 IL_FUNCTION
-int fs_lseek(int fd, long offset, int whence) {
+long fs_lseek(int fd, long offset, int whence) {
     if (fd < 0 || fd >= MAXFILES)
         return E_FS_OUT_OF_BOUNDS;
     if (whence < 0 || whence > 2)
-        return E_FS_ERROR;
+        return E_FS_OUT_OF_BOUNDS;
     
     ws_bank_with_ram(BANK_OSWORK, {
+        if (fhandle(fd).ent == NULL)
+            return E_FS_FILE_NOT_OPEN;
+
         fpos_t new_pos;
         if (whence == SEEK_SET)
             new_pos = offset;
@@ -275,7 +278,7 @@ int fs_lseek(int fd, long offset, int whence) {
             new_pos = fhandle(fd).len;
 
         fhandle(fd).pos = new_pos;
-        return E_FS_SUCCESS;
+        return new_pos;
     });
 }
 
