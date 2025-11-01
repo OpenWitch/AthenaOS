@@ -77,12 +77,16 @@ footer:
 #elif BIOS_BANK_ROM_FORCE_COUNT == 1
 	.byte 0
 #elif BIOS_BANK_ROM_FORCE_COUNT == 0
-	.byte 2 // Default - 512 KB
+	.byte 2 // Default - 512 KiB
 #else
 # error Unsupported ROM bank count!
 #endif
 
-	.byte 4 // RAM size
+#ifdef OS_ENABLE_128K_SRAM
+	.byte 3 // RAM size - 128 KiB
+#else
+	.byte 4 // RAM size - 256 KiB
+#endif
 	.byte 4 // Flags
 	.byte 1 // Mapper
 	.word 0xFFFF // Checksum

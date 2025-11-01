@@ -25,7 +25,6 @@
 #include "fs/fs.h"
 #include "il/ilib.h"
 #include "il/proc.h"
-#include "sys/bios.h"
 
 __attribute__((section(".sramwork")))
 SRAMWork sramwork;
@@ -38,7 +37,7 @@ static void init_proc_context(void) {
 }
 
 int main(void) {
-    outportb(WS_CART_BANK_RAM_PORT, BANK_OSWORK);
+    ws_bank_ram_set(BANK_OSWORK);
     init_proc_context();
 
     sramwork._os_version = 0x1963; // version 1.9.99
@@ -53,16 +52,13 @@ int main(void) {
         exec_resource = MK_FP(exec_segment + (executable->resource >> 4), executable->resource & 0xF);
     }
 
-    outportb(WS_CART_BANK_RAM_PORT, BANK_USERDS0);
+    ws_bank_ram_set(BANK_USERDS0);
     init_proc_context();
 
     proc_func_load_t start_func = MK_FP(exec_segment, 0);
     uint16_t main_func_ofs = start_func();
 
-    _pc->_ilib = il_ilib_ptr();
-    _pc->_proc = il_proc_ptr();
-    _pc->_cwfs = rom0_fs;
-    strcpy(_pc->_currentdir, "/rom0");
+    init_proc_context();
     _pc->_resource = exec_resource;
 
     proc_run(MK_FP(exec_segment, main_func_ofs), 0, NULL);

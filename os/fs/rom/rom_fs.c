@@ -431,11 +431,20 @@ const fent_t *fs_init(void) {
     root_fs->mode = FMODE_DIR | FMODE_MMAP | FMODE_R;
 
     rom0_fs->loc = MK_FP(0x8000, 0x0000);
-    rom0_fs->len = 0x60000;
+    rom0_fs->len = 0x60000L;
+#ifdef ATHENA_IN_ROM
+    rom0_fs->mode = FMODE_DIR | FMODE_R;
+#else
     rom0_fs->mode = FMODE_DIR | FMODE_R | FMODE_W;
+#endif
 
+#ifdef OS_ENABLE_128K_SRAM
+    ram0_fs->loc = MK_FP(0x1000 + OS_RAM_SEGMENTS_RESERVED, 0x0000);
+    ram0_fs->len = 0x10000L - (OS_RAM_SEGMENTS_RESERVED << 4);
+#else
     ram0_fs->loc = MK_FP(0x1000, 0x0000);
-    ram0_fs->len = 0x10000;
+    ram0_fs->len = 0x10000L;
+#endif
     ram0_fs->mode = FMODE_DIR | FMODE_MMAP | FMODE_R | FMODE_W;
 
     kern_fs->il = il_fs_ptr();

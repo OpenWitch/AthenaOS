@@ -39,6 +39,20 @@
 
 #define OS_SEGMENT 0xE000
 
+#ifdef OS_ENABLE_128K_SRAM
+#undef BANK_SOFTFS
+#undef BANK_USERDS1
+#undef BANK_USERDS0
+#undef BANK_OSWORK
+
+#define BANK_SOFTFS 1
+#define BANK_USERDS1 0
+#define BANK_USERDS0 0
+#define BANK_OSWORK 1
+
+#endif
+#define OS_RAM_SEGMENTS_RESERVED 0x400
+
 #ifndef __ASSEMBLER__
 
 __attribute__((cdecl))

@@ -65,6 +65,11 @@
 
 # == OS ==
 
+# Enable a 128 KiB instead of 256 KiB SRAM layout.
+# This only works with a limited set of programs!
+
+# OS_ENABLE_128K_SRAM := true
+
 # == OS / Branding ==
 
 # Define the project name.
