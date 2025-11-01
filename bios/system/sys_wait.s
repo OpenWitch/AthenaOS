@@ -38,11 +38,12 @@ sys_wait:
     ss add cx, [tick_count]
     sti
 1:
-    ss cmp cx, [tick_count]
-    jle 2f
+    // TODO: How does this function interact with other IRQs,
+    // especially when CX == 0?
     hlt
     nop
-    jmp 1b
+    ss cmp cx, [tick_count]
+    jg 1b
 2:
     pop cx
     popf
