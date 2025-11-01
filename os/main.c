@@ -43,11 +43,15 @@ int main(void) {
 
     sramwork._os_version = 0x1963; // version 1.9.99
 
-    // Memory initialization
+    // Post-FreyaOS memory initialization
     if (ws_system_is_color_model()) {
         ws_system_set_mode(WS_MODE_COLOR);
-        // False Shooting Watch depends on this palette entry being set
+        // Software by Nagtoshop depends on the background color being set.
         WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
+        // Software by Nagtoshop depends on tile 4 being clear.
+        memset(WS_TILE_MEM(4), 0, 16);
+        // Tiles 0 and 1 are also typically clear.
+        memset(WS_TILE_MEM(0), 0, 32);
         ws_system_set_mode(WS_MODE_MONO);
     }
 
