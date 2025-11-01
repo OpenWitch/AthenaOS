@@ -194,10 +194,12 @@ static void fs_safe_memcpy(char __far* dst, const char __far* src, int len, bool
             ws_bank_ram_set(src_bank);
         }
         ws_bank_ram_set(orig_bank);
-    } else {
+    } else if (to_fs && PTR_IN_SRAM(dst)) {
         ws_bank_with_ram(BANK_SOFTFS, {
             memcpy(dst, src, len);
         });
+    } else {
+        memcpy(dst, src, len);
     }
 }
 
