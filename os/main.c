@@ -30,11 +30,13 @@
 __attribute__((section(".sramwork")))
 SRAMWork sramwork;
 
+const char __far rom0_path[] = "/rom0";
+
 static void init_proc_context(void) {
     _pc->_ilib = il_ilib_ptr();
     _pc->_proc = il_proc_ptr();
     _pc->_cwfs = rom0_fs;
-    strcpy(_pc->_currentdir, "/rom0");
+    strcpy(_pc->_currentdir, rom0_path);
 }
 
 int main(void) {
@@ -66,7 +68,6 @@ int main(void) {
     }
 
     ws_bank_ram_set(BANK_USERDS0);
-    init_proc_context();
 
     proc_func_load_t start_func = MK_FP(exec_segment, 0);
     uint16_t main_func_ofs = start_func();
