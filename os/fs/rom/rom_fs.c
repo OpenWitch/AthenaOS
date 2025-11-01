@@ -20,9 +20,11 @@
  * SOFTWARE.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <wonderful.h>
+#include <ws/memory.h>
 #include "common.h"
 #include "sys/bios.h"
 #include "fs/kern_fs.h"
@@ -169,31 +171,86 @@ int fs_close(int fd) {
     });
 }
 
+#define PTR_IN_SRAM(ptr) ((FP_SEG((ptr)) & 0xF000) == 0x1000)
+
+static void fs_safe_memcpy(char __far* dst, const char __far* src, int len, bool to_fs) {
+    if (PTR_IN_SRAM(src) && PTR_IN_SRAM(dst)) {
+        // data in PSRAM, slow copy path
+
+        ws_bank_t orig_bank = ws_bank_ram_get(), src_bank, dst_bank;
+        if (to_fs) {
+            src_bank = orig_bank;
+            dst_bank = BANK_SOFTFS;
+        } else {
+            src_bank = BANK_SOFTFS;
+            dst_bank = orig_bank;
+            ws_bank_ram_set(src_bank);
+        }
+
+        for (int i = 0; i < len; i++) {
+            char tmp = src[i];
+            ws_bank_ram_set(dst_bank);
+            dst[i] = tmp;
+            ws_bank_ram_set(src_bank);
+        }
+        ws_bank_ram_set(orig_bank);
+    } else {
+        ws_bank_with_ram(BANK_SOFTFS, {
+            memcpy(dst, src, len);
+        });
+    }
+}
+
 IL_FUNCTION
 int fs_read(int fd, char __far *data, int length) {
     if (fd < 0 || fd >= MAXFILES)
         return E_FS_OUT_OF_BOUNDS;
 
+    const void __far *src;
+    int to_read;
+
     ws_bank_with_ram(BANK_OSWORK, {
         if (fhandle(fd).ent == NULL)
             return E_FS_ERROR;
+        if (!(fhandle(fd).mode & FMODE_R))
+            return E_FS_PERMISSION_DENIED;
 
         fpos_t pos = fhandle(fd).pos;
-        const void __far* src = MK_FP(fhandle(fd).loc.w.seg + (pos >> 4), pos & 0xF);
-        int to_read = length;
+        src = MK_FP(fhandle(fd).loc.w.seg + (pos >> 4), pos & 0xF);
+        to_read = length;
         if (to_read > (fhandle(fd).len - pos))
             to_read = fhandle(fd).len - pos;
-
-        memcpy(data, src, to_read);
         fhandle(fd).pos += to_read;
-        return to_read;
     });
+
+    fs_safe_memcpy(data, src, to_read, false);
+    return to_read;
 }
 
 IL_FUNCTION
 int fs_write(int fd, const char __far *data, int length) {
-    // TODO
-    return E_FS_ERROR;
+    if (fd < 0 || fd >= MAXFILES)
+        return E_FS_OUT_OF_BOUNDS;
+
+    void __far *dest;
+    int to_write;
+
+    ws_bank_with_ram(BANK_OSWORK, {
+        if (fhandle(fd).ent == NULL)
+            return E_FS_ERROR;
+        if (!(fhandle(fd).mode & FMODE_W))
+            return E_FS_PERMISSION_DENIED;
+
+        fpos_t pos = fhandle(fd).pos;
+        dest = MK_FP(fhandle(fd).loc.w.seg + (pos >> 4), pos & 0xF);
+        to_write = length;
+        if (to_write > (fhandle(fd).len - pos))
+            to_write = fhandle(fd).len - pos;
+        fhandle(fd).pos += to_write;
+    });
+
+    fs_safe_memcpy(dest, data, to_write, true);
+    return to_write;
 }
 
 IL_FUNCTION
@@ -251,13 +308,29 @@ int fs_creat(FS fs, fent_t __far *entry) {
 
         int n = fs_n_entries(fs);
         fent_t __far* files = fs_entries(fs);
+        uint16_t max_seg = FP_SEG(fs->loc);
+        uint16_t end_seg = max_seg + (fs->len >> 4);
+        int free_count = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (files[i].count > 0) {
+                uint16_t seg = FP_SEG(files[i].loc);
+                if (seg > max_seg)
+                    max_seg = seg;
+            }
+        }
+
+        free_count = (end_seg - max_seg) >> 3;
+        if (free_count < entry->count)
+            return E_FS_NO_SPACE_LEFT;
 
         for (int i = 0; i < n; i++) {
             if (files[i].count < 0) {
                 memcpy(files + i, entry, sizeof(fent_t));
-
-                // TODO: allocate room for file
-                return E_FS_ERROR;
+                files[i].loc = MK_FP(max_seg, 0);
+                // TODO: Is this dynamically allocated up to count?
+                files[i].len = files[i].count << 7;
+                return E_FS_SUCCESS;
             }
         }
 
