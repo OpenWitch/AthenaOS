@@ -67,14 +67,14 @@ screen_get_char:
 1:
     // copy row using MOVSW
     push cx
-    push di
+    push si
     xor ch, ch
     rep movsw
-    pop di
+    pop si
     pop cx
 
     // advance to next column
-    add di, 32 * 2
+    add si, 32 * 2
     dec ch
     jnz 1b
     jmp 3f
