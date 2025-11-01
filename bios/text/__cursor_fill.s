@@ -34,7 +34,6 @@ __cursor_fill:
     mov ah, 0x0A
     ss mov al, [text_screen]
     ss mov bx, [text_cursor_x]
-    ss add bx, [text_wx] // Add window coordinates to cursor coordinates
     ss mov cx, [text_cursor_w]
     push si
     mov si, 0xE1FF
