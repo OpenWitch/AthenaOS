@@ -35,7 +35,6 @@
  */
     .global rtc_get_datetime
 rtc_get_datetime:
-    xor ax, ax
     cmp bx, 7
     jae 9f
 
@@ -52,6 +51,7 @@ rtc_get_datetime:
     
     // Read value
     add bx, dx
+    xor ax, ax
     mov al, [bx]
 
     // Deallocate buffer
