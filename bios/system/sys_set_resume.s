@@ -41,7 +41,7 @@ sys_set_resume:
     or bx, 0x0100
     push 0x1000
     pop ds
-    mov [SRAM3_OFS_RESUME_FLAG], bx
+    mov [SRAM3_OFS_CONFIG1], bx
     pop bx
     pop ds
     ret

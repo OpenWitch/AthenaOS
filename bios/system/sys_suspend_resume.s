@@ -47,7 +47,7 @@ sys_suspend:
     // Set resumable flag
     push bx
     push ds
-    mov bx, SRAM3_OFS_RESUME_FLAG
+    mov bx, SRAM3_OFS_CONFIG1
     add bl, al
     push 0x1000
     pop ds
@@ -150,7 +150,7 @@ sys_resume:
     // Check resumable flag
     push bx
     push ds
-    mov bx, SRAM3_OFS_RESUME_FLAG
+    mov bx, SRAM3_OFS_CONFIG1
     add bl, al
     push 0x1000
     pop ds

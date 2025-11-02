@@ -37,7 +37,7 @@ sys_get_resume:
     push ds
     push 0x1000
     pop ds
-    mov ax, [SRAM3_OFS_RESUME_FLAG]
+    mov ax, [SRAM3_OFS_CONFIG1]
     xchg ah, al
     pop ds
     ret
