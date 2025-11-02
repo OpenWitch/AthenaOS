@@ -118,5 +118,5 @@ ILIB_DEFINE_END bmpsaver
     .global bmpsaver_stub_func
 bmpsaver_stub_func:
     mov ax, 0xFFFF
-    IA16_RET
+    retf
 #endif

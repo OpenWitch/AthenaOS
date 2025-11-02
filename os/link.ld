@@ -19,6 +19,11 @@ SECTIONS
 		"__ia16_far_alias.0!" = .;
 		"__ia16_far_alias.1!" = .;
 		"__ia16_far_alias.2!" = .;
+		"__ia16_far_alias.3!" = .;
+		"__ia16_far_alias.4!" = .;
+		"__ia16_far_alias.5!" = .;
+		"__ia16_far_alias.6!" = .;
+		"__ia16_far_alias.7!" = .;
 	} >rom
 
 	/* Target text section. */

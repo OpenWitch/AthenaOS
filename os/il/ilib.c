@@ -35,7 +35,11 @@ static int __ilib_open(FS fs, const char __far* name, void __far* il_buffer) {
         size_t il_len = sizeof(IL) - 4 + il->n_methods * 4;
         memcpy(il_buffer, il, il_len);
         for (int i = 0; i < il->n_methods; i++) {
-            ((uint16_t __far*) il_buffer)[4 + 2 * i] += FP_SEG(il);
+            // FIXME: This is a bit of a hack...
+            uint16_t il_seg = ((uint16_t __far*) il_buffer)[4 + 2 * i];
+            if (il_seg < OS_SEGMENT)
+                il_seg += FP_SEG(il);
+            ((uint16_t __far*) il_buffer)[4 + 2 * i] = il_seg;
         }
         return 0;
     }
