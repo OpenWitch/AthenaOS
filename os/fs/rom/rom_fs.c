@@ -319,7 +319,7 @@ int fs_creat(FS fs, fent_t __far *entry) {
 
         for (int i = 0; i < n; i++) {
             if (files[i].count > 0) {
-                uint16_t seg = FP_SEG(files[i].loc);
+                uint16_t seg = FP_SEG(files[i].loc) + (files[i].count << 3);
                 if (seg > max_seg)
                     max_seg = seg;
             }
