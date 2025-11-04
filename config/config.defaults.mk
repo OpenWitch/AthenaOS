@@ -10,7 +10,7 @@ BIOS_TIMER_RTC := s3511a
 NAME := Athena
 VERSION_MAJOR := 0
 VERSION_MINOR := 1
-VERSION_PATCH := 2
+VERSION_PATCH := 3
 FLAVOR := ww
 
 BIOS_FONT_ANK  := fonts/font_ank.png
