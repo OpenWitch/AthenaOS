@@ -2,6 +2,17 @@
 
 # == BIOS ==
 
+# Catch unknown interrupts instead of ignoring them, which is the default
+# FreyaBIOS behaviour.
+
+# BIOS_CATCH_IRQ_ERRORS := true
+
+# FreyaOS 1.1.2+ has a bug where it mistakenly corrupts the division by zero
+# vector. This attempts to undo it by writing the vector back in a less used
+# BIOS method.
+
+BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION := true
+
 # == BIOS / Hardware ==
 
 # Select the mapper protocol used by the cartridge.

@@ -172,6 +172,10 @@ hw_irq_vblank_handler:
     mov al, WS_INT_ENABLE_VBLANK
     out WS_INT_ACK_PORT, al
     pop ax
+#ifndef BIOS_CATCH_IRQ_ERRORS
+	.global error_handle_irq
+error_handle_irq:
+#endif
     iret
 
     .section ".data"

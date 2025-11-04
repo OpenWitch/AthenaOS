@@ -153,6 +153,10 @@ error_handle_end:
 s_generic_error:
 	.asciz "Generic error"
 
+#ifdef BIOS_CATCH_IRQ_ERRORS
+	.global error_handle_irq
+error_handle_irq:
+#endif
 	.global error_handle_generic
 error_handle_generic:
 	call error_handle_start

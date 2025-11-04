@@ -28,5 +28,14 @@
 
 	.global irq_exit_handler
 irq_exit_handler:
+	// Clear and acknowledge all interrupts
 	cli
+	mov ax, 0x00FF
+	out 0xB6, ax
+
+	// Reset audio hardware
+	// Assume AH = 0x00 (from above)
+	int 0x15
+
+	// Jump
 	jmp 0xffff:0x0000

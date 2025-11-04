@@ -43,6 +43,11 @@ sys_alloc_iram:
     push si
     push di
 
+#ifdef BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION
+    // See config.mk for more details.
+    ss mov word ptr [0x2], 0xF000
+#endif
+
     // All allocations are 16-byte aligned.
     // TODO: This is wasteful, but good enough to run.
     add cx, 15

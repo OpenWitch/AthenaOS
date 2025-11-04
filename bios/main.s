@@ -83,7 +83,7 @@ _start:
 	mov di, ax
 	mov cx, 0x40
 1:
-	mov ax, offset "error_handle_generic"
+	mov ax, offset "error_handle_irq"
 	stosw // offset
 	mov ax, cs
 	stosw // segment
