@@ -54,6 +54,8 @@ int main(void) {
         memset(WS_TILE_MEM(4), 0, 16);
         // Tiles 0 and 1 are also typically clear.
         memset(WS_TILE_MEM(0), 0, 32);
+        // Flip by hIDDEN depends on screen 2 being clear.
+        memset(MK_FP(0x0000, 0x1800), 0, 0x800);
         ws_system_set_mode(WS_MODE_MONO);
     }
 
