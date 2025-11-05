@@ -24,9 +24,10 @@
 
 typedef struct {
     uint16_t magic;
-    uint16_t rom0_start_segment;
+    uint16_t fs_start_segment;
     uint16_t rom0_count;
     uint16_t rom0_executable_idx;
+    uint16_t ram0_count;
 } rom_fs_footer_t;
 
 #define ROM_FS_FOOTER_MAGIC 0x5AA5

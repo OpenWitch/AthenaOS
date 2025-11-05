@@ -419,19 +419,10 @@ uint32_t fs_space(FS fs) {
 // FIXME
 __attribute__((optimize("-O0")))
 const fent_t *fs_init(void) {
-    if (rom_fs_footer->magic != ROM_FS_FOOTER_MAGIC) {
-        text_screen_init();
-        text_put_string(2, 8, "ROM filesystem not found");
-        while(1) ia16_halt();
-    }
-
+    // Initialize file systems
     fs_newfs(root_fs);
     fs_newfs(rom0_fs);
     fs_newfs(ram0_fs);
-
-    memcpy(rom0_fs_entries,
-        MK_FP(rom_fs_footer->rom0_start_segment, 0x0000),
-        rom_fs_footer->rom0_count * sizeof(fent_t));
 
     root_fs->mode = FMODE_DIR | FMODE_MMAP | FMODE_R;
 
@@ -463,6 +454,29 @@ const fent_t *fs_init(void) {
     strcpy(kern_fs->name, "kern");
 
     memset(sramwork_p->_openfiles, 0, sizeof(sramwork_p->_openfiles));
+
+    // Copy files from ROM
+    if (rom_fs_footer->magic != ROM_FS_FOOTER_MAGIC) {
+        text_screen_init();
+        text_put_string(2, 8, "ROM filesystem not found");
+        while(1) ia16_halt();
+    }
+
+    memcpy(rom0_fs_entries,
+        MK_FP(rom_fs_footer->fs_start_segment, 0x0000),
+        rom_fs_footer->rom0_count * sizeof(fent_t));
+
+    fent_t __far *entry_src = MK_FP(rom_fs_footer->fs_start_segment, rom_fs_footer->rom0_count * sizeof(fent_t));
+    uint8_t __far *ram_dst = ram0_fs->loc;
+    for (int i = 0; i < rom_fs_footer->ram0_count; i++) {
+        fent_t *entry_dst = ram0_fs_entries + i;
+        memcpy(entry_dst, entry_src, sizeof(fent_t));
+        if (entry_dst->count > 0) {
+            memcpy(ram_dst, entry_src->loc, entry_dst->count << 7);
+            entry_dst->loc = ram_dst;
+            ram_dst = MK_FP(FP_SEG(ram_dst) + (entry_dst->count << 3), FP_OFF(ram_dst));
+        }
+    }
 
     return rom0_fs_entries + rom_fs_footer->rom0_executable_idx;
 }
