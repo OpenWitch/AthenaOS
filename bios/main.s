@@ -69,6 +69,7 @@ _start:
 	mov cx, offset "__bss_length_words"
 	xor ax, ax
 	rep stosw
+	mov di, ax
 
 #if BIOS_BANK_ROM_FORCE_DYNAMIC
 	// Intiialize bank_rom_offset
@@ -80,7 +81,6 @@ _start:
 #endif
 
 	// Clear interrupt vectors
-	mov di, ax
 	mov cx, 0x40
 1:
 	mov ax, offset "error_handle_irq"
