@@ -3,6 +3,6 @@
 # as it performs a flash write self-test on boot.
 
 BIOS_BANK_MEMORY := rom
-BIOS_BANK_ROM_FORCE_COUNT := 8
+BIOS_BANK_ROM_FORCE_DYNAMIC := true
 BIOS_TIMER_RTC := none
 FLAVOR := rom

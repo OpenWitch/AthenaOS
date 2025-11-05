@@ -50,8 +50,8 @@ screen_set_char:
     mov si, dx
 
     // CL, CH = width, height
-    test cl, cl
-    jz 2f
+    // test cl, cl
+    // jz 2f
     test ch, ch
     jz 2f
 

@@ -38,14 +38,15 @@
     .global sprite_set_char_location
 sprite_set_char_location:
     push ax
+    push dx
     push di
 
     call __display_sprite_at
     xchg dh, dl
     ss mov [di], cx
     ss mov [di + 2], dx
-    xchg dh, dl
     
     pop di
+    pop dx
     pop ax
     ret

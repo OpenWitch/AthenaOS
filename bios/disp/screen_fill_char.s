@@ -47,8 +47,8 @@ screen_fill_char:
     call __display_screen_at
 
     // CL, CH = width, height
-    test cl, cl
-    jz 2f
+    // test cl, cl
+    // jz 2f
     test ch, ch
     jz 2f
 

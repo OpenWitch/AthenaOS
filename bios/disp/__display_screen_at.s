@@ -86,7 +86,6 @@ __display_screen_at:
 __display_sprite_location:
 	in al, WS_SPR_BASE_PORT
 	shl ax, 9
-	and ah, 0x7E
 	mov di, ax
 	ret
 
@@ -102,6 +101,5 @@ __display_sprite_at:
 
 	in al, WS_SPR_BASE_PORT
 	shl ax, 9
-	and ah, 0x7E
 	add di, ax
 	ret
