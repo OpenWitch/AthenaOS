@@ -1,6 +1,7 @@
 # Configuration defaults for config.mk.
 # Do not change this file! Change config.mk instead.
 
+BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION := true
 BIOS_BANK_MAPPER := 2001
 BIOS_BANK_MEMORY := mbm29dl400tc
 BIOS_BANK_ROM_FORCE_COUNT := 0

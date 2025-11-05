@@ -15,7 +15,7 @@
 # vector. This attempts to undo it by writing the vector back in a less used
 # BIOS method.
 
-BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION := true
+# BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION := true
 
 # == BIOS / Hardware ==
 

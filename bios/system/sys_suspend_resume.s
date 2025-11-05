@@ -69,7 +69,6 @@ sys_suspend:
     mov ax, 0x1000
     mov es, ax
 
-    cli
     cld
 
     // Store mono IRAM
@@ -120,8 +119,6 @@ __sys_suspend_after_io:
     pop ax
     stosw
 
-    sti
-
     popa
     xor ax, ax
     ret
@@ -166,7 +163,6 @@ sys_resume:
     mov ax, 0x1000
     mov ds, ax
 
-    cli
     cld
 
     // Load mono IRAM
@@ -208,8 +204,6 @@ __sys_resume_after_io:
     lodsw
     mov ss, ax
 
-    sti
-   
     // SP is now equal to the value after PUSH SP
     add sp, 4
 
