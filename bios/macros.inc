@@ -47,10 +47,12 @@
  * @param flags Flags for handler generation.
  */
 .macro m_irq_table_handler jump_table_start, entry_count=0, flags=0, out_of_bounds_label=1f
+#ifdef BIOS_CATCH_IRQ_BOUNDS
 .if \entry_count > 0
 	cmp ah, \entry_count
 	jae \out_of_bounds_label
 .endif
+#endif
 .if \flags & M_IRQ_PUSH_ES
 	push es
 .endif
@@ -73,11 +75,9 @@
 	push bx
 .endif
 	push bp
-	mov bp, bx
-	xor bx, bx
-	mov bl, ah
-	shl bx, 1
-	xchg bp, bx
+	mov bp, ax
+	shr bp, 8
+	shl bp, 1
 	cs call [\jump_table_start + bp]
 	pop bp
 .if \flags & M_IRQ_PUSH_BX

@@ -2,6 +2,10 @@
 
 # == BIOS ==
 
+# Catch out of bounds interrupts instead of crashing.
+
+# BIOS_CATCH_IRQ_BOUNDS := true
+
 # Catch unknown interrupts instead of ignoring them, which is the default
 # FreyaBIOS behaviour.
 
