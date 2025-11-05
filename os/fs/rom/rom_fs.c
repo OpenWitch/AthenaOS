@@ -194,7 +194,7 @@ static void fs_safe_memcpy(char __far* dst, const char __far* src, int len, bool
             ws_bank_ram_set(src_bank);
         }
         ws_bank_ram_set(orig_bank);
-    } else if (to_fs && PTR_IN_SRAM(dst)) {
+    } else if (to_fs ? PTR_IN_SRAM(dst) : PTR_IN_SRAM(src)) {
         ws_bank_with_ram(BANK_SOFTFS, {
             memcpy(dst, src, len);
         });
@@ -225,7 +225,8 @@ int fs_read(int fd, char __far *data, int length) {
         fhandle(fd).pos += to_read;
     });
 
-    fs_safe_memcpy(data, src, to_read, false);
+    if (to_read)
+        fs_safe_memcpy(data, src, to_read, false);
     return to_read;
 }
 
@@ -251,7 +252,8 @@ int fs_write(int fd, const char __far *data, int length) {
         fhandle(fd).pos += to_write;
     });
 
-    fs_safe_memcpy(dest, data, to_write, true);
+    if (to_write)
+        fs_safe_memcpy(dest, data, to_write, true);
     return to_write;
 }
 
@@ -466,13 +468,15 @@ const fent_t *fs_init(void) {
         MK_FP(rom_fs_footer->fs_start_segment, 0x0000),
         rom_fs_footer->rom0_count * sizeof(fent_t));
 
-    fent_t __far *entry_src = MK_FP(rom_fs_footer->fs_start_segment, rom_fs_footer->rom0_count * sizeof(fent_t));
     uint8_t __far *ram_dst = ram0_fs->loc;
     for (int i = 0; i < rom_fs_footer->ram0_count; i++) {
+        fent_t __far *entry_src = MK_FP(rom_fs_footer->fs_start_segment, (rom_fs_footer->rom0_count + i) * sizeof(fent_t));
         fent_t *entry_dst = ram0_fs_entries + i;
         memcpy(entry_dst, entry_src, sizeof(fent_t));
         if (entry_dst->count > 0) {
-            memcpy(ram_dst, entry_src->loc, entry_dst->count << 7);
+            ws_bank_with_ram(BANK_SOFTFS, {
+                memcpy(ram_dst, entry_src->loc, entry_src->count << 7);
+            });
             entry_dst->loc = ram_dst;
             ram_dst = MK_FP(FP_SEG(ram_dst) + (entry_dst->count << 3), FP_OFF(ram_dst));
         }
