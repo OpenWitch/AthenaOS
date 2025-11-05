@@ -140,12 +140,12 @@ sys_alloc_iram:
     pop cx
     pop bx
 
-    test bx, bx
-    jz 9f
-
     // Align pointer to 16 bytes
     add ax, 15
     and ax, 0xFFF0
+
+    test bx, bx
+    jz 9f
 
     // Store pointer in IRAM
     mov ss:[bx], ax
