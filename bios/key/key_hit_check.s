@@ -34,6 +34,5 @@
  */
     .global key_hit_check
 key_hit_check:
-    cli // Disable interrupts to make the keys_pressed access atomic
     ss mov ax, [keys_pressed]
     jmp __key_clear_pressed
