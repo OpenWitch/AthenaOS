@@ -27,6 +27,10 @@
 // Memory map
 /// Wavetable memory location (64 bytes, aligned).
 #define MEM_WAVETABLE 0x180
+/// FreyaBIOS Screen 1 memory pointer (Junkbox's FEDORA depends on it).
+#define MEM_PTR_SCR1  0x232
+/// FreyaBIOS Screen 2 memory pointer (Junkbox's FEDORA depends on it).
+#define MEM_PTR_SCR2  0x234
 /// Default top of stack - the smallest top of stack of all memory modes (ASC1/ASC2/JPN1/JPN2).
 #define MEM_STACK_TOP 0xE00
 

@@ -32,6 +32,13 @@
 	.section ".text.__display_screen_location", "ax"
 	.global __display_screen_location
 __display_screen_location:
+#ifdef MEM_PTR_SCR1
+	// Faster variant depending on memory layout
+	and ax, 0x00FF
+	shl ax, 1
+	mov di, ax
+	ss mov di, [di + MEM_PTR_SCR1]
+#else
 	push cx
 
 	add al, al
@@ -45,6 +52,7 @@ __display_screen_location:
 	mov di, ax
 
 	pop cx
+#endif
 	ret
 
 	// Input: AL = screen ID, BL = X, BH = Y
@@ -53,6 +61,17 @@ __display_screen_location:
 	.section ".text.__display_screen_at", "ax"
 	.global __display_screen_at
 __display_screen_at:
+#ifdef MEM_PTR_SCR1
+	// Faster variant depending on memory layout
+	push bx
+
+	and ax, 0x00FF
+	shl ax, 1
+	mov bx, ax
+	ss mov di, [bx + MEM_PTR_SCR1]
+
+	pop bx
+#else
 	push cx
 
 	add al, al
@@ -66,7 +85,7 @@ __display_screen_at:
 	mov di, ax
 
 	pop cx
-
+#endif
 	push bx
 	mov bh, 0
 	add di, bx

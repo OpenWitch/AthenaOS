@@ -37,6 +37,11 @@
 screen_set_vram:
     pusha
 
+#ifdef MEM_PTR_SCR1
+    push bx
+    push ax
+#endif
+    // Configure I/O port
     mov cl, al
     shl cl, 2  // CL = 0 (SCREEN1), 4 (SCREEN2)
     mov al, 0xF0
@@ -49,6 +54,15 @@ screen_set_vram:
     and al, cl
     or al, bl
     out WS_SCR_BASE_PORT, al
+
+#ifdef MEM_PTR_SCR1
+    // Configure memory
+    pop bx
+    pop ax
+    shl ax, 11
+    add bx, bx // 0x4200, 0x4202 -> 0x232, 0x234
+    ss mov word ptr [bx + (0xBE00 + MEM_PTR_SCR1)], ax
+#endif
 
     popa
     ret

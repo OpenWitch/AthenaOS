@@ -53,7 +53,7 @@ SECTIONS
 		"__heap_end!" = .;
 	}
 
-	. = 0x230;
+	. = 0x236;
 
 	/* Target data section. */
 	.data . : AT(ADDR(".text") + SIZEOF(".text"))
