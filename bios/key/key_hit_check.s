@@ -35,4 +35,9 @@
     .global key_hit_check
 key_hit_check:
     ss mov ax, [keys_pressed]
-    jmp __key_clear_pressed
+    .global __key_clear_pressed
+__key_clear_pressed:
+    xor bp, bp
+    ss mov [keys_pressed], bp
+    ss mov [keys_pressed_repeat], bp
+    ret

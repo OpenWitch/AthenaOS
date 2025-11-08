@@ -35,9 +35,4 @@
     .global key_press_check
 key_press_check:
     ss mov ax, [keys_held]
-    .global __key_clear_pressed
-__key_clear_pressed:
-    xor bp, bp
-    ss mov [keys_pressed], bp
-    ss mov [keys_pressed_repeat], bp
     ret
