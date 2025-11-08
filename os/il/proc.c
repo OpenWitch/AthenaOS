@@ -42,9 +42,7 @@ int proc_run(void __far* entrypoint, int argc, const char __far* __far* argv) {
         }
         *(local_arg++) = 0;
     }
-    if ((uint16_t) _pc->_heap < (uint16_t) _pc->_argv) {
-        _pc->_heap = _pc->_argv;
-    }
+    _pc->_heap = local_arg;
 
     // Run entrypoint
     ((proc_func_entrypoint_t) entrypoint)(argc, _pc->_argv);

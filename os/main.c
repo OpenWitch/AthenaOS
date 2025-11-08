@@ -40,6 +40,9 @@ static void init_proc_context(void) {
 }
 
 int main(void) {
+    uint8_t arg0[32];
+    const char __far* argv[1];
+
     ws_bank_ram_set(BANK_OSWORK);
     init_proc_context();
 
@@ -69,6 +72,12 @@ int main(void) {
         exec_resource = MK_FP(exec_segment + (executable->resource >> 4), executable->resource & 0xF);
     }
 
+    // Build argv[0]
+    strcpy(arg0, rom0_path);
+    arg0[5] = '/';
+    memcpy(arg0 + 6, executable->name, 16);
+    arg0[6 + 17] = 0;
+
     ws_bank_ram_set(BANK_USERDS0);
 
     proc_func_load_t start_func = MK_FP(exec_segment, 0);
@@ -77,7 +86,8 @@ int main(void) {
     init_proc_context();
     _pc->_resource = exec_resource;
 
-    proc_run(MK_FP(exec_segment, main_func_ofs), 0, NULL);
+    argv[0] = arg0;
+    proc_run(MK_FP(exec_segment, main_func_ofs), 1, argv);
 
     while(1);
 }
