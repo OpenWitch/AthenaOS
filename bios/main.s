@@ -134,17 +134,8 @@ _start:
 	out WS_SCR_PAL_1_PORT, ax
 
 	// boot in JPN2 mode by default
-#if 0
 	mov al, 0x32
 	out WS_SCR_BASE_PORT, al
-#else
-	mov ax, 0x2100
-	mov bl, 0x02
-	call screen_set_vram
-	inc ax
-	inc bx
-	call screen_set_vram
-#endif
 	mov al, 0x07
 	out WS_SPR_BASE_PORT, al
 	mov ah, 0x02

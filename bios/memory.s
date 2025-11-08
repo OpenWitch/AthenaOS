@@ -37,8 +37,8 @@ bios_tmp_buffer:
 // [0x232, 2 bytes] bios_ptr_scr1
 // Used by FEDORA for direct VRAM access.
 bios_ptr_scr1:
-	.word 0x0
+	.word 0x1000
 // [0x234, 2 bytes] bios_ptr_scr2
 // Used by FEDORA for direct VRAM access.
 bios_ptr_scr2:
-	.word 0x0
+	.word 0x1800
