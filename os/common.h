@@ -60,6 +60,12 @@ typedef uint16_t __far (*proc_func_load_t)(void);
 __attribute__((cdecl))
 typedef void __far (*proc_func_entrypoint_t)(int argc, char **argv);
 
+typedef struct {
+	IL super;
+	IL_FUNCTION void (*_launch)(void);
+} ShellIL;
+_Static_assert(sizeof(ShellIL) == 14, "Invalid ShellIL size");
+
 #define OS_DEFINE_IL(name, type) \
     extern type name; \
     extern uint8_t name ## _end; \
@@ -68,13 +74,8 @@ typedef void __far (*proc_func_entrypoint_t)(int argc, char **argv);
 OS_DEFINE_IL(il_fs, FsIL);
 OS_DEFINE_IL(il_ilib, IlibIL);
 OS_DEFINE_IL(il_proc, ProcIL);
+OS_DEFINE_IL(il_shell, ShellIL);
 extern char il_bmpsaver;
-
-typedef struct {
-	IL super;
-	IL_FUNCTION void (*_launch)(void);
-} ShellIL;
-_Static_assert(sizeof(ShellIL) == 14, "Invalid ShellIL size");
 
 #endif
 

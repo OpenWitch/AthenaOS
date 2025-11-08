@@ -97,6 +97,10 @@ ILIB_FUNCTION fs_defrag
 ILIB_FUNCTION fs_space
 ILIB_DEFINE_END fs
 
+ILIB_DEFINE shell, 1
+ILIB_FUNCTION shell_launch
+ILIB_DEFINE_END shell
+
 #ifdef OS_ENABLE_BUILTIN_BMPSAVER_STUB
 // BMPSaver is a library for taking .BMP screenshots of the console display,
 // primarily meant for aiding developers. Unfortunately, the public WWGP2002

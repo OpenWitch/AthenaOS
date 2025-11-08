@@ -24,7 +24,6 @@
 #include "common.h"
 #include "fs/fs.h"
 
-__attribute__((optimize("-O0")))
 static int __ilib_open(FS fs, const char __far* name, void __far* il_buffer) {
     fent_t entry;
 
@@ -36,10 +35,11 @@ static int __ilib_open(FS fs, const char __far* name, void __far* il_buffer) {
         memcpy(il_buffer, il, il_len);
         for (int i = 0; i < il->n_methods; i++) {
             // FIXME: This is a bit of a hack...
-            uint16_t il_seg = ((uint16_t __far*) il_buffer)[4 + 2 * i];
+            uint16_t __far *il_ptr = ((uint16_t __far*) il_buffer) + (4 + 2 * i);
+            uint16_t il_seg = *il_ptr;
             if (il_seg < OS_SEGMENT)
                 il_seg += FP_SEG(il);
-            ((uint16_t __far*) il_buffer)[4 + 2 * i] = il_seg;
+            *il_ptr = il_seg;
         }
         return 0;
     }
