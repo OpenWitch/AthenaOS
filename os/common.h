@@ -70,6 +70,12 @@ OS_DEFINE_IL(il_ilib, IlibIL);
 OS_DEFINE_IL(il_proc, ProcIL);
 extern char il_bmpsaver;
 
+typedef struct {
+	IL super;
+	IL_FUNCTION void (*_launch)(void);
+} ShellIL;
+_Static_assert(sizeof(ShellIL) == 14, "Invalid ShellIL size");
+
 #endif
 
 #endif /* _COMMON_H_ */
