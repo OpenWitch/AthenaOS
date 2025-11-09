@@ -458,7 +458,7 @@ const fent_t *fs_init(void) {
     memset(sramwork_p->_openfiles, 0, sizeof(sramwork_p->_openfiles));
 
     // Copy files from ROM
-    if (rom_fs_footer->magic != ROM_FS_FOOTER_MAGIC) {
+    if (rom_fs_footer->magic != ROM_FS_FOOTER_MAGIC || rom_fs_footer->version != ROM_FS_FOOTER_VERSION) {
         text_screen_init();
         text_put_string(2, 8, "ROM filesystem not found");
         while(1) ia16_halt();
