@@ -91,7 +91,7 @@ with open(args.output, "wb") as fout:
     # write AthenaOS ROM filesystem footer
     if len(args.files) > 0:
         fout.seek(rom_size - (64 * 1024) - 32)
-        fout.write(struct.pack('<HHHHH', 0x5AA5, rom_start >> 4, file_count, 0, 0))
+        fout.write(struct.pack('<HHHHHH', 0x5AA5, 1, rom_start >> 4, file_count, 0, 0))
 
     # write OS footer
     fout.seek(rom_size - (64 * 1024) - 16)

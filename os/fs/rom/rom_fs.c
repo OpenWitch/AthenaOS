@@ -114,16 +114,15 @@ void __far * __far fs_mmap(FS fs, const char __far *filename) {
     char filename_local[MAXFNAME];
     strncpy(filename_local, filename, MAXFNAME);
 
-    void __far *result = NULL;
     ws_bank_with_ram(BANK_OSWORK, {
         if (!(fs->mode & FMODE_MMAP)) {
             fent_t __far* src_entry = find_fs_entry(fs, filename_local);
             if (src_entry != NULL) {
-                result = src_entry->loc;
+                return src_entry->loc;
             }
         }
     });
-    return result;
+    return NULL;
 }
 
 IL_FUNCTION
