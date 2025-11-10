@@ -52,8 +52,12 @@ sys_alloc_iram:
     // TODO: This is wasteful, but good enough to run.
     add cx, 15
 
-    // DX = handle to set
+    // DX = handle to set (0 if BX != 0)
+    xor dx, dx
+    test bx, bx
+    jnz 9f
     mov dx, [bp + IRQ_TABLE_HANDLER_CS_OFFSET]
+9:
     // BP = current heap location
     mov bp, offset __heap_start
     // SI = position of found block
@@ -148,7 +152,6 @@ sys_alloc_iram:
     jz 9f
 
     // Store pointer in IRAM
-    mov ss:[bx], ax
-    mov word ptr ss:[bx+2], 0
+    ss mov [bx], ax
 9:
     ret
