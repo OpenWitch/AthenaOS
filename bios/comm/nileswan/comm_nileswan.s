@@ -85,6 +85,14 @@ comm_close:
 __nile_spi_mcu_send_command:
 	push di
 	push es
+	push bp
+
+	push ax
+	in ax, IO_BANK_2003_RAM
+	mov bp, ax // BP - previous RAM segment
+	mov ax, NILE_SEG_RAM_SPI_TX
+	out IO_BANK_2003_RAM, ax
+	pop ax
 
 	// Write command word
 	push 0x1000
@@ -109,7 +117,15 @@ __nile_spi_mcu_send_command:
 	push cx
 	inc cx
 	shr cx, 1
+
+	mov ax, ds
+	cmp ax, 0x1000
+	jb 2f
+	cmp ax, 0x2000
+	jb __nile_spi_mcu_copy_slow
+2:
 	rep movsw
+3:
 	pop cx
 	dec cx
 
@@ -129,9 +145,28 @@ __nile_spi_mcu_send_command:
 8:
 	and ax, 0
 9:
+	xchg ax, bp
+	out IO_BANK_2003_RAM, ax
+	mov ax, bp
+
+	pop bp
 	pop es
 	pop di
 	ret
+
+	// SRAM->SRAM copy
+__nile_spi_mcu_copy_slow:
+2:
+	mov ax, bp
+	out IO_BANK_2003_RAM, ax
+	lodsw
+	push ax
+	mov ax, NILE_SEG_RAM_SPI_TX
+	out IO_BANK_2003_RAM, ax
+	pop ax
+	stosw
+	loop 2b
+	jmp 3b
 
 /**
  * __nile_check_available
@@ -139,11 +174,6 @@ __nile_spi_mcu_send_command:
  */
 	.global __nile_check_available
 __nile_check_available:
-	in ax, IO_BANK_2003_RAM
-	push ax
-	mov ax, NILE_SEG_RAM_SPI_TX
-	out IO_BANK_2003_RAM, ax
-
 	in ax, IO_BANK_2003_ROM0
 	push ax
 	mov ax, NILE_SEG_ROM_SPI_RX
@@ -182,8 +212,6 @@ __nile_check_available:
 9:
 	pop ax
 	out IO_BANK_2003_ROM0, ax
-	pop ax
-	out IO_BANK_2003_RAM, ax
 	mov ax, cx
 
 	ret
@@ -206,11 +234,6 @@ comm_send_block:
 	push si
 	push di
 	push es
-
-	in ax, IO_BANK_2003_RAM
-	push ax
-	mov ax, NILE_SEG_RAM_SPI_TX
-	out IO_BANK_2003_RAM, ax
 
 	cld
 
@@ -240,11 +263,6 @@ comm_send_block:
 	// Done
 	xor ax, ax
 9:
-	mov di, ax
-	pop ax
-	out IO_BANK_2003_RAM, ax
-	mov ax, di
-
 	pop es
 	pop di
 	pop si
