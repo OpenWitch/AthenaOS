@@ -22,5 +22,5 @@
 
 #include "common.h"
 
-extern const fent_t kern_fs_entries[];
+extern const fent_t __far kern_fs_entries[];
 extern const uint16_t kern_fs_num_entries;

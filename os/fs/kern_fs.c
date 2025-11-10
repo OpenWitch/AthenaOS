@@ -25,7 +25,7 @@
 #include "common.h"
 #include "sys/bios.h"
 
-const fent_t kern_fs_entries[] = {
+const fent_t __far kern_fs_entries[] = {
     {"@ilib", "ilib", __builtin_ia16_static_far_cast(&il_ilib), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
     {"@proc", "proc", __builtin_ia16_static_far_cast(&il_proc), 0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},
     {"@pfs",  "pfs",  __builtin_ia16_static_far_cast(&il_fs),   0, 0, FMODE_ILIB | FMODE_R, 0, NULL, 0xFFFFFFFF},

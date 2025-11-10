@@ -30,7 +30,20 @@
 #include "fs/kern_fs.h"
 #include "rom_fs.h"
 
+// #define OS_FS_DEBUG
+
 #define fhandle(fd) (sramwork_p->_openfiles[(fd)])
+
+#ifdef OS_FS_DEBUG
+static const char __far hexchars[] = "0123456789ABCDEF";
+
+static void comm_send_hex(uint16_t value) {
+    comm_send_char(' ');
+    for (int i = 0; i < 4; i++) {
+        comm_send_char(hexchars[(value >> ((3 - i) * 4)) & 0xF]);
+    }
+}
+#endif
 
 IL_FUNCTION
 fent_t __far* __far fs_entries(FS fs) {
@@ -115,6 +128,13 @@ void __far * __far fs_mmap(FS fs, const char __far *filename) {
     strncpy(filename_local, filename, MAXFNAME);
 
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_mmap ");
+        comm_send_string(filename);
+        comm_send_string("\r\n");
+#endif
+
         if (!(fs->mode & FMODE_MMAP)) {
             fent_t __far* src_entry = find_fs_entry(fs, filename_local);
             if (src_entry != NULL) {
@@ -131,6 +151,14 @@ int fs_open(FS fs, const char __far *filename, int mode, int perms) {
     strncpy(filename_local, filename, MAXFNAME);
 
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_open ");
+        comm_send_string(filename_local);
+        comm_send_hex(mode);
+        comm_send_hex(perms);
+#endif
+
         if (mode & ~fs->mode) 
             return E_FS_PERMISSION_DENIED;
 
@@ -152,8 +180,13 @@ int fs_open(FS fs, const char __far *filename, int mode, int perms) {
         h->len = src_entry->len;
         h->count = src_entry->count;
         h->pos = 0;
-        
-        return E_FS_SUCCESS;
+
+#ifdef OS_FS_DEBUG
+        comm_send_hex(free_fd);
+        comm_send_string("\r\n");
+#endif
+
+        return free_fd;
     });
 }
 
@@ -163,6 +196,13 @@ int fs_close(int fd) {
         return E_FS_OUT_OF_BOUNDS;
 
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_close");
+        comm_send_hex(fd);
+        comm_send_string("\r\n");
+#endif
+
         if (fhandle(fd).ent == NULL)
             return E_FS_FILE_NOT_OPEN;
         fhandle(fd).ent = NULL;
@@ -211,6 +251,14 @@ int fs_read(int fd, char __far *data, int length) {
     int to_read;
 
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_read");
+        comm_send_hex(fd);
+        comm_send_hex(length);
+        comm_send_string("\r\n");
+#endif
+
         if (fhandle(fd).ent == NULL)
             return E_FS_FILE_NOT_OPEN;
         if (!(fhandle(fd).mode & FMODE_R))
@@ -238,6 +286,14 @@ int fs_write(int fd, const char __far *data, int length) {
     int to_write;
 
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_write");
+        comm_send_hex(fd);
+        comm_send_hex(length);
+        comm_send_string("\r\n");
+#endif
+
         if (fhandle(fd).ent == NULL)
             return E_FS_FILE_NOT_OPEN;
         if (!(fhandle(fd).mode & FMODE_W))
@@ -264,6 +320,15 @@ long fs_lseek(int fd, long offset, int whence) {
         return E_FS_OUT_OF_BOUNDS;
     
     ws_bank_with_ram(BANK_OSWORK, {
+#ifdef OS_FS_DEBUG
+        comm_open();
+        comm_send_string("fs_lseek");
+        comm_send_hex(fd);
+        comm_send_hex(offset);
+        comm_send_hex(whence);
+        comm_send_string("\r\n");
+#endif
+
         if (fhandle(fd).ent == NULL)
             return E_FS_FILE_NOT_OPEN;
 
