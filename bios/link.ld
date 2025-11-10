@@ -76,6 +76,8 @@ SECTIONS
 		*(.bss ".bss.*[^&]")
 		. = ALIGN (2);
 		__bss_end = .;
+		. = ALIGN(16);
+		. = . + 12;
 		__heap_start = .;
 	}
 	"__bss_length!" = 0;

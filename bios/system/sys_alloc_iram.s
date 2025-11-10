@@ -26,6 +26,10 @@
 
 #include "common.inc"
 
+// Current layout: For each block aligned to 16:
+// [12 bytes reserved] [2 bytes: handle] [2 bytes: size]
+// TODO: Less wasteful layout
+
 /**
  * INT 17h AH=0Fh - sys_alloc_iram
  * Input:
@@ -48,9 +52,10 @@ sys_alloc_iram:
     ss mov word ptr [0x2], 0xF000
 #endif
 
-    // All allocations are 16-byte aligned.
-    // TODO: This is wasteful, but good enough to run.
-    add cx, 15
+    // Align size to memory allocator alignment
+    add cx, 19
+    and cx, 0xFFF0
+    sub cx, 4
 
     // DX = handle to set (0 if BX != 0)
     xor dx, dx
@@ -60,6 +65,7 @@ sys_alloc_iram:
 9:
     // BP = current heap location
     mov bp, offset __heap_start
+
     // SI = position of found block
     // DI = size of found block
     xor si, si
@@ -143,10 +149,6 @@ sys_alloc_iram:
     pop dx
     pop cx
     pop bx
-
-    // Align pointer to 16 bytes
-    add ax, 15
-    and ax, 0xFFF0
 
     test bx, bx
     jz 9f
