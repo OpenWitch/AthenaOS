@@ -45,17 +45,17 @@ __sys_slot_to_address:
     .global sys_suspend
 sys_suspend:
     // Set resumable flag
-    push bx
+    push cx
     push ds
-    mov bx, SRAM3_OFS_CONFIG1
-    add bl, al
-    push 0x1000
+
+    mov cl, al
+    mov al, 0x80
+    shr al, cl
+
+    or [SRAM3_OFS_CONFIG2], al
+
     pop ds
-    mov ah, 0x80
-    add ah, al
-    mov byte ptr [bx], ah
-    pop ds
-    pop bx
+    pop cx
 
     call __sys_slot_to_address
 
@@ -145,16 +145,21 @@ __sys_resume_none:
     .global sys_resume
 sys_resume:
     // Check resumable flag
-    push bx
+    push cx
     push ds
-    mov bx, SRAM3_OFS_CONFIG1
-    add bl, al
-    push 0x1000
+
+    mov cl, al
+    mov al, 0x80
+    shr al, cl
+
+    test [SRAM3_OFS_CONFIG2], al
+
     pop ds
-    test byte ptr [bx], 0x80
-    pop ds
-    pop bx
+    pop cx
     jz __sys_resume_none
+
+    not al
+    and [SRAM3_OFS_CONFIG2], al
 
     call __sys_slot_to_address
 

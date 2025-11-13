@@ -35,13 +35,19 @@
     .global sys_set_resume
 sys_set_resume:
     push ds
+    push ax
     push bx
-    xchg bh, bl
-    and bx, 0xF0F0
-    or bx, 0x0100
+
     push 0x1000
     pop ds
-    mov [SRAM3_OFS_CONFIG1], bx
+
+    mov ax, [SRAM3_OFS_CONFIG1]
+    and bx, 0xFE00
+    and ax, 0x01FF
+    or ax, bx
+    mov [SRAM3_OFS_CONFIG1], ax
+
     pop bx
+    pop ax
     pop ds
     ret

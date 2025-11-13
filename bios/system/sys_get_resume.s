@@ -38,6 +38,6 @@ sys_get_resume:
     push 0x1000
     pop ds
     mov ax, [SRAM3_OFS_CONFIG1]
-    xchg ah, al
+    and ax, 0xFE00
     pop ds
     ret
