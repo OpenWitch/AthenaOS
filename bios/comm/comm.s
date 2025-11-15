@@ -49,8 +49,6 @@ irq_comm_handler:
 	iret
 
 	.section ".data"
-	.global comm_baudrate
-comm_baudrate: .byte 1 // 38400 bps
 	.global comm_recv_timeout
 comm_recv_timeout: .word 0xFFFF
 	.global comm_send_timeout

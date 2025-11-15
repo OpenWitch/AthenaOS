@@ -34,6 +34,11 @@
  */
     .global comm_get_baudrate
 comm_get_baudrate:
-    xor ax, ax
-    ss mov al, [comm_baudrate]
-    ret
+	push bx
+
+	mov bx, BIOS_SRAM_CONFIG2
+	call __sys_read_sram_word
+	and ax, 0x0001
+
+	pop bx
+	ret

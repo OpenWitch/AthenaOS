@@ -34,7 +34,7 @@
     .global comm_open
 comm_open:
     push ax
-    ss mov al, [comm_baudrate]
+    call comm_get_baudrate
     shl al, 6
     and al, WS_UART_CTRL_BAUD_MASK
     or al, (WS_UART_CTRL_ENABLE | WS_UART_CTRL_RX_OVERRUN_RESET)

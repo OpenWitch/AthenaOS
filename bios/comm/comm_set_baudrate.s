@@ -34,5 +34,21 @@
  */
     .global comm_set_baudrate
 comm_set_baudrate:
-    ss mov [comm_baudrate], bl
-    ret
+    push ax
+	push bx
+	push bx
+
+	mov bx, BIOS_SRAM_CONFIG2
+	call __sys_read_sram_word
+
+	pop bx
+    and al, 0xFE
+    and bl, 0x01
+    or al, bl
+    
+    mov bx, BIOS_SRAM_CONFIG2
+	call __sys_write_sram_byte
+
+    pop bx
+    pop ax
+	ret

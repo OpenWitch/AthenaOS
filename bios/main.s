@@ -152,6 +152,13 @@ _start:
 	// initialize timer
 	call rtc_init
 
+	// TODO: allow default settings in SRAM
+	// set baud rate
+	mov bx, 0x0001
+	call comm_set_baudrate
+	// clear resume flags
+	call sys_set_resume
+
 	// jump to OS
 	jmp 0xE000:0x0000
 
