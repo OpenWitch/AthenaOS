@@ -146,6 +146,8 @@ _start:
 	mov al, WS_DISPLAY_CTRL_SCR2_ENABLE
 	out WS_DISPLAY_CTRL_PORT, al
 
+	call text_set_sjis_font_default
+
 	// initialize sound system
 	call sound_init
 

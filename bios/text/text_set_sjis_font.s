@@ -34,8 +34,16 @@
  */
     .global text_set_sjis_font
 text_set_sjis_font:
-    // TODO: Support setting to NULL (in text_get_fontdata)
+    mov bp, dx
+    or bp, bx
+    jz text_set_sjis_font_default
 
     ss mov [text_sjis_handler], dx
     ss mov [text_sjis_handler + 2], bx
+    ret
+
+    .global text_set_sjis_font_default
+text_set_sjis_font_default:
+    ss mov word ptr [text_sjis_handler], offset text_sjis_default_font_handler
+    ss mov word ptr [text_sjis_handler + 2], BIOS_SEGMENT
     ret

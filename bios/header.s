@@ -24,6 +24,8 @@
 	.code16
 	.intel_syntax noprefix
 
+#include "common.inc"
+
 	.section .header, "a"
 header:
 #ifndef BIOS_NO_PSRAM_RETENTION_HEADER
@@ -48,7 +50,7 @@ footer_athena:
 footer:
 	.byte 0xEA
 	.word _start
-	.word 0xF000
+	.word BIOS_SEGMENT
 	.byte 0 // Maintenance
 	.byte 0 // Publisher ID
 	.byte 1 // Color

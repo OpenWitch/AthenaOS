@@ -49,7 +49,7 @@ sys_alloc_iram:
 
 #ifdef BIOS_WORKAROUND_DIV_ZERO_VECTOR_CORRUPTION
     // See config.mk for more details.
-    ss mov word ptr [0x2], 0xF000
+    ss mov word ptr [0x2], BIOS_SEGMENT
 #endif
 
     // Align size to memory allocator alignment

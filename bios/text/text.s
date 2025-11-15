@@ -63,12 +63,11 @@ text_cursor_color: .byte 1
 text_cursor_rate:  .byte 30
     .global text_screen
 text_screen: .byte 1
-    .global text_sjis_handler
-text_sjis_handler:
-    .word text_sjis_default_font_handler
-    .word 0xF000
 
     .section ".bss"
+    .global text_sjis_handler
+text_sjis_handler:
+    .word 0, 0
     .global text_mode
 text_mode: .byte 0
     .global text_color
