@@ -39,7 +39,7 @@ irq_text_handlers:
     .word text_fill_char
     .word text_set_palette
     .word text_get_palette
-    .word error_handle_irq19 // TODO: text_set_ank_font
+    .word text_set_ank_font
     .word text_set_sjis_font
     .word text_get_fontdata
     .word text_set_screen
@@ -63,6 +63,14 @@ text_cursor_color: .byte 1
 text_cursor_rate:  .byte 30
     .global text_screen
 text_screen: .byte 1
+    .global text_ank_data
+text_ank_data: m_far_rom_ptr font_ank
+    .global text_ank_base
+text_ank_base: .word 0
+    .global text_ank_count
+text_ank_count: .word 128
+    .global text_ank_color
+text_ank_color: .byte 0
 
     .section ".bss"
     .global text_sjis_handler

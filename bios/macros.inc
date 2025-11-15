@@ -28,8 +28,8 @@
 #define M_IRQ_PUSH_DS	(32)
 #define M_IRQ_PUSH_ES	(64)
 
-.macro m_far_code_ptr address
-	.word \address\(), BIOS_SEGMENT
+.macro m_far_rom_ptr address
+	.word \address\(), 0xF000
 .endm
 
 // Default IRQ table handler stack offset.

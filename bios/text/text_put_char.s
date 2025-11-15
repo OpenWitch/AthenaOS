@@ -72,14 +72,14 @@ text_put_char_sjis:
     jmp text_put_char_end
 
 text_put_char_ank:
-    cmp cx, 0x80 // for characters outside of range, use "?"
-    jb 1f
-    mov cx, '?'
+    sub cx, [text_ank_base]
+    cmp cx, [text_ank_count]
+    jae text_put_char_ank_out_of_bounds
+    add cx, [text_base]
 1:
     mov al, [text_color]
     shl ax, 9
     add cx, ax
-    add cx, [text_base]
     mov [di], cx // [DI] = CX | (text_color << 9)
 
 text_put_char_end:
@@ -87,3 +87,7 @@ text_put_char_end:
     pop ds
     popa
     ret
+
+text_put_char_ank_out_of_bounds:
+    xor cx, cx
+    jmp 1b

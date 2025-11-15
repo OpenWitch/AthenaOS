@@ -26,6 +26,8 @@
 
 #include "common.inc"
 
+    // TODO: Handling of out-of-bounds alphanumeric characters in Shift-JIS modes
+    // differs.
 /**
  * INT 13h AH=0Dh - text_get_fontdata
  * Input:
@@ -44,18 +46,18 @@ text_get_fontdata:
 
     // CX => AX
     // DS:DX => ES:DI
-    // CS => DS
+    // SS => DS
     mov ax, cx
     push ds
-    push cs
+    push ss
     pop ds
     pop es
     mov di, dx
 
-    ss cmp byte ptr [text_mode], 1
+    cmp byte ptr [text_mode], 1
     ja .no_ascii
-    cmp ax, 0x0080
-    jb .ascii
+    test ax, 0xFF00
+    jz .ascii
 .no_ascii:
     cmp ax, 0x80
     jae .no_table
@@ -65,11 +67,15 @@ text_get_fontdata:
     // AX = text_ank_sjis_table[AX - 0x20]
     xchg bx, ax
     add bx, bx
-    mov bx, [bx + text_ank_sjis_table - 0x40]
+    cs mov bx, [bx + text_ank_sjis_table - 0x40]
     xchg bx, ax
 
 .no_table:
-    ss lcall offset text_sjis_handler
+    // TODO: Does text_sjis_handler receive single-byte characters?
+    test ax, 0xFF00
+    jz .ascii
+
+    lcall offset text_sjis_handler
     mov ax, 0
     jnc .sjis_continue
 .no_sjis:
@@ -99,7 +105,8 @@ text_get_fontdata:
     ret
 
 .ascii:
-    mov si, offset font_ank
+    sub ax, [text_ank_base]
+    lds si, [text_ank_data]
     shl ax, 3
     add si, ax
 
@@ -114,6 +121,9 @@ text_sjis_default_font_handler:
     push bx
     push dx
     push ds
+
+    push cs
+    pop ds
 
     mov si, offset font_sjis
     push si

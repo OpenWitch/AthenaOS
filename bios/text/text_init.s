@@ -35,10 +35,11 @@ text_screen_init:
     // Initialize screen from 0,0 to 28,18
     mov bx, ( 0 | ( 0 << 8))
     mov cx, (28 | (18 << 8))
-    mov dx, (512 - ANK_SCREEN_TILES)
+    mov dx, (512 - SCREEN_TILE_COUNT)
     ss cmp byte ptr [text_mode], TEXT_MODE_ANK
-    je 1f
-    mov dx, (512 - SJIS_SCREEN_TILES)
+    jne 1f
+    mov dx, 512
+    ss sub dx, [text_ank_count]
 1:
     call text_window_init
     popa
@@ -91,11 +92,12 @@ __text_window_init_sjis:
 __text_window_init_ank:
     // font_set_monodata(text_base, 128, font_ank);
     mov bx, dx // assumption: DX unchanged
-    mov cx, 128
-    mov dx, offset font_ank
-    push cs
-    pop ds
-    call font_set_monodata
+    ss mov cx, [text_ank_count]
+    ss lds dx, [text_ank_data]
+    ss cmp byte ptr [text_ank_color], 0
+    push offset __text_window_init_end
+    jnz font_set_colordata
+    jmp font_set_monodata
 
 __text_window_init_end:
     // Clear screen

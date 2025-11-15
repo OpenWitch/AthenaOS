@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, 2024 Adrian "asie" Siekierka
+ * Copyright (c) 2025 Adrian "asie" Siekierka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,38 +20,32 @@
  * SOFTWARE.
  */
 
-#include <wonderful.h>
-#include <ws.h>
-#include "macros.inc"
+	.arch	i186
+	.code16
+	.intel_syntax noprefix
 
-// Memory map
-/// Wavetable memory location (64 bytes, aligned).
-#define MEM_WAVETABLE 0x180
-/// FreyaBIOS Screen 1 memory pointer (Junkbox's FEDORA depends on it).
-#define MEM_PTR_SCR1  0x232
-/// FreyaBIOS Screen 2 memory pointer (Junkbox's FEDORA depends on it).
-#define MEM_PTR_SCR2  0x234
-/// Default top of stack - the smallest top of stack of all memory modes (ASC1/ASC2/JPN1/JPN2).
-#define MEM_STACK_TOP 0xE00
- 
-#define SCREEN_TILE_COUNT (28 * 18)
-#define TEXT_MODE_ANK 0
-#define TEXT_MODE_ANK_SJIS 1
-#define TEXT_MODE_SJIS 2
+#include "common.inc"
 
-#define BIOS_VERSION_MAJOR 1
-#define BIOS_VERSION_MINOR 9
-#define BIOS_VERSION_PATCH 99
-#define BIOS_VERSION (((BIOS_VERSION_MAJOR) << 12) | ((BIOS_VERSION_MINOR) << 8) | (BIOS_VERSION_PATCH))
-#define BIOS_REQUIRED_IRQ_MASK (WS_INT_ENABLE_VBLANK)
+/**
+ * INT 13h AH=0Bh - text_set_ank_font
+ * Input:
+ * - BL = First character
+ * - BH = 0 if 1bpp, 1 if 2bpp
+ * - CX = Number of characters
+ * - DS:DX = Font data
+ */
+    .global text_set_ank_font
+text_set_ank_font:
+    push ds
+    push ds
+    push ss
+    pop ds
 
-#define BIOS_SEGMENT 0xF000
+    mov [text_ank_base], bl
+    mov [text_ank_color], bh
+    mov [text_ank_count], cx
+    mov [text_ank_data], dx
 
-#ifdef OS_ENABLE_128K_SRAM
-#define BIOS_SRAM_BANK 1
-#else
-#define BIOS_SRAM_BANK 3
-#endif
-
-#define BIOS_SRAM_CONFIG1 0xFFEE
-#define BIOS_SRAM_CONFIG2 0xFFEF
+    pop [text_ank_data + 2]
+    pop ds
+    ret
