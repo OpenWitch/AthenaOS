@@ -48,7 +48,7 @@ irq_system_handlers:
     .word sys_free_iram
     .word sys_get_my_iram
     .word sys_get_version
-    .word error_handle_irq23 // TODO: sys_swap
+    .word sys_swap
     .word sys_set_resume
     .word sys_get_resume
 
@@ -121,7 +121,5 @@ sys_keepalive_int: .byte WS_INT_ENABLE_KEY_SCAN
 	.section ".bss"
 	.global sys_awake_key
 sys_awake_key: .word 0
-	.global sys_sleep_time
-sys_sleep_time: .byte 0
 	.global sys_remote
 sys_remote: .byte 0

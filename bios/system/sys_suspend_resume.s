@@ -87,8 +87,8 @@ sys_suspend:
 
     // ES:DI => suspend target
     mov di, ax
-    mov ax, 0x1000
-    mov es, ax
+    push ds
+    pop es
 
     cld
 
@@ -164,7 +164,6 @@ __sys_resume_none:
  * Input:
  * - AL = slot
  * Output:
- * - AX = 0/1?
  */
     .global sys_resume
 sys_resume:
@@ -191,8 +190,6 @@ sys_resume:
 
     // DS:SI => suspend target
     mov si, ax
-    mov ax, 0x1000
-    mov ds, ax
 
     cld
 
@@ -224,6 +221,8 @@ sys_resume:
 2:
     inc dx
     inc dx
+    inc bx
+    inc bx
     loop 1b
 
 __sys_resume_after_io:
@@ -235,6 +234,7 @@ __sys_resume_after_io:
     lodsw
     mov ss, ax
 
+__sys_resume_end:
     // SP is now equal to the value after PUSH SP
     add sp, 4
 
@@ -249,3 +249,80 @@ __sys_resume_no_io_table:
     inc dx
     loop 1b
     jmp __sys_resume_after_io
+
+/**
+ * INT 17h AH=13h - sys_swap
+ * Input:
+ * - AL = slot
+ * Output:
+ */
+    .global sys_swap
+sys_swap:
+    m_start_suspend_block
+
+    // use BIOS SRAM bank
+    push ax
+    mov ax, BIOS_SRAM_BANK
+    bank_map_write_ax_sram
+    pop ax
+
+    mov cl, al
+    mov al, 0x80
+    shr al, cl
+
+    test [BIOS_SRAM_CONFIG2], al
+    jz __sys_resume_none
+
+    mov al, cl
+    call __sys_slot_to_address
+
+    push ss
+    push sp
+    push cx
+    
+    // DS:SI => suspend target
+    mov si, ax
+
+    cld
+
+    // Swap mono IRAM
+    push ss
+    pop es
+    mov cx, (0x4000 >> 1)
+    xor di, di
+1:
+    // DS:SI <=> ES:DI
+    es mov ax, [di]
+    xchg [si], ax
+    add si, 2
+    stosw
+    loop 1b
+
+    // TODO: Support I/O table
+    xor dx, dx
+    mov cx, (0xE0 >> 1)
+    add si, 4
+    jmp __sys_swap_no_io_table
+
+__sys_swap_after_io:
+    // Swap CX, SP, SS
+    xchg cx, [si]
+    add sp, 2
+    xchg sp, [si+2]
+    mov ax, ss
+    xchg ax, [si+4]
+    mov ss, ax
+
+    jmp __sys_resume_end
+
+__sys_swap_no_io_table:
+1:
+    in ax, dx
+    xchg ax, [si]
+    out dx, ax
+    inc dx
+    inc dx
+    inc si
+    inc si
+    loop 1b
+    jmp __sys_swap_after_io
