@@ -34,6 +34,12 @@
  */
 	.global sys_get_sleep_time
 sys_get_sleep_time:
-	xor ax, ax
-	ss mov al, [sys_sleep_time]
+	push bx
+
+	mov bx, BIOS_SRAM_CONFIG1
+	call __sys_read_sram_word
+	and ax, 0x00FF
+
+	pop bx
 	ret
+

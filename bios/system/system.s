@@ -25,6 +25,7 @@
 	.intel_syntax noprefix
 
 #include "common.inc"
+#include "bank/bank_macros.inc"
 
 	.align 2
 irq_system_handlers:
@@ -55,6 +56,63 @@ irq_system_handlers:
 irq_system_handler:
 	m_irq_table_handler irq_system_handlers, 22, 0, error_handle_irq23
 	iret
+
+    // BX = address
+    // corrupts AX, BP
+    // reads to AL
+    .global __sys_read_sram_word
+__sys_read_sram_word:
+    // set DS
+    push ds
+    push 0x1000
+    pop ds
+
+    // set bank
+    bank_map_read_ax_sram
+    push ax
+    mov ax, BIOS_SRAM_BANK
+    bank_map_write_ax_sram
+
+    mov bp, [bx]
+
+    // reset bank
+    pop ax
+    bank_map_write_ax_sram
+
+    // reset DS
+    pop ds
+
+    mov ax, bp
+    ret
+
+    // AL = byte
+    // BX = address
+    // corrupts AX, BP
+    .global __sys_write_sram_byte
+__sys_write_sram_byte:
+    mov bp, ax
+
+    // set DS
+    push ds
+    push 0x1000
+    pop ds
+
+    // set bank
+    bank_map_read_ax_sram
+    push ax
+    mov ax, BIOS_SRAM_BANK
+    bank_map_write_ax_sram
+
+    mov ax, bp
+    mov [bx], al
+
+    // reset bank
+    pop ax
+    bank_map_write_ax_sram
+
+    // reset DS
+    pop ds
+    ret
 
     .section ".data"
 	.global sys_keepalive_int

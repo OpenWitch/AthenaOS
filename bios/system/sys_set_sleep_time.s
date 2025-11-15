@@ -34,5 +34,13 @@
  */
 	.global sys_set_sleep_time
 sys_set_sleep_time:
-	ss mov [sys_sleep_time], bl
+	push ax
+	push bx
+
+	mov al, bl
+	mov bx, BIOS_SRAM_CONFIG1
+	call __sys_write_sram_byte
+
+	pop bx
+	pop ax
 	ret

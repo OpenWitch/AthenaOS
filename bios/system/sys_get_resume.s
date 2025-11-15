@@ -34,10 +34,11 @@
  */
     .global sys_get_resume
 sys_get_resume:
-    push ds
-    push 0x1000
-    pop ds
-    mov ax, [SRAM3_OFS_CONFIG1]
-    and ax, 0xFE00
-    pop ds
-    ret
+	push bx
+
+	mov bx, BIOS_SRAM_CONFIG1
+	call __sys_read_sram_word
+	and ax, 0xFE00
+
+	pop bx
+	ret

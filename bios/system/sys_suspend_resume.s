@@ -25,6 +25,7 @@
 	.intel_syntax noprefix
 
 #include "common.inc"
+#include "bank/bank_macros.inc"
 
 __sys_slot_to_address:
     inc al
@@ -33,6 +34,26 @@ __sys_slot_to_address:
     xchg ah, al
     neg ax
     ret
+
+.macro m_start_suspend_block
+    pusha
+    push es
+    push ds
+    push 0x1000
+    pop ds
+    mov bp, ax
+    bank_map_read_ax_sram
+    push ax
+    mov ax, bp
+.endm
+
+.macro m_end_suspend_block
+    pop ax
+    bank_map_write_ax_sram
+    pop ds
+    pop es
+    popa
+.endm
 
 /**
  * INT 17h AH=0Bh - sys_suspend
@@ -44,22 +65,22 @@ __sys_slot_to_address:
  */
     .global sys_suspend
 sys_suspend:
-    // Set resumable flag
-    push cx
-    push ds
+    m_start_suspend_block
+
+    // use BIOS SRAM bank
+    push ax
+    mov ax, BIOS_SRAM_BANK
+    bank_map_write_ax_sram
+    pop ax
 
     mov cl, al
     mov al, 0x80
     shr al, cl
+    or [BIOS_SRAM_CONFIG2], al
 
-    or [SRAM3_OFS_CONFIG2], al
-
-    pop ds
-    pop cx
-
+    mov al, cl
     call __sys_slot_to_address
 
-    pusha
     push ss
     push sp
     push cx
@@ -119,7 +140,7 @@ __sys_suspend_after_io:
     pop ax
     stosw
 
-    popa
+    m_end_suspend_block
     xor ax, ax
     ret
 
@@ -131,9 +152,12 @@ __sys_suspend_no_io_table:
     loop 1b
     jmp __sys_suspend_after_io
 
-__sys_resume_none:
     xor ax, ax
-    ret    
+    ret
+
+__sys_resume_none:
+    m_end_suspend_block
+    ret
 
 /**
  * INT 17h AH=0Ch - sys_resume
@@ -144,23 +168,25 @@ __sys_resume_none:
  */
     .global sys_resume
 sys_resume:
-    // Check resumable flag
-    push cx
-    push ds
+    m_start_suspend_block
+
+    // use BIOS SRAM bank
+    push ax
+    mov ax, BIOS_SRAM_BANK
+    bank_map_write_ax_sram
+    pop ax
 
     mov cl, al
     mov al, 0x80
     shr al, cl
 
-    test [SRAM3_OFS_CONFIG2], al
-
-    pop ds
-    pop cx
+    test [BIOS_SRAM_CONFIG2], al
     jz __sys_resume_none
 
     not al
-    and [SRAM3_OFS_CONFIG2], al
+    and [BIOS_SRAM_CONFIG2], al
 
+    mov al, cl
     call __sys_slot_to_address
 
     // DS:SI => suspend target
@@ -212,7 +238,7 @@ __sys_resume_after_io:
     // SP is now equal to the value after PUSH SP
     add sp, 4
 
-    popa
+    m_end_suspend_block
     mov ax, 1
     ret
 

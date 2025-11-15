@@ -34,20 +34,21 @@
  */
     .global sys_set_resume
 sys_set_resume:
-    push ds
     push ax
-    push bx
+	push bx
+	push bx
 
-    push 0x1000
-    pop ds
+	mov bx, BIOS_SRAM_CONFIG2
+	call __sys_read_sram_word
 
-    mov ax, [SRAM3_OFS_CONFIG1]
-    and bx, 0xFE00
-    and ax, 0x01FF
-    or ax, bx
-    mov [SRAM3_OFS_CONFIG1], ax
+	pop bx
+    and al, 0x01
+    and bl, 0xFE
+    or al, bl
+    
+    mov bx, BIOS_SRAM_CONFIG2
+	call __sys_write_sram_byte
 
     pop bx
     pop ax
-    pop ds
-    ret
+	ret
