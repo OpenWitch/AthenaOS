@@ -37,6 +37,9 @@
  */
     .global text_put_substring
 text_put_substring:
+    test cx, cx
+    jz 9f
+
     push si
     push di
     push bx
@@ -83,4 +86,5 @@ text_put_substring:
     pop bx
     pop di
     pop si
+9:
     ret

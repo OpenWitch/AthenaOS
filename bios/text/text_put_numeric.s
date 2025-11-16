@@ -72,6 +72,9 @@ __tpn_put:
  */
 	.global text_put_numeric
 text_put_numeric:
+    test cl, cl
+    jz 9f
+
 	test ch, FLAG_HEX
 	jz 1f
 	and ch, ~(FLAG_ALIGN_LEFT | FLAG_SIGNED)
@@ -198,4 +201,5 @@ __tpn_write_loop:
 	pop dx
 	pop cx
 	pop bx
+9:
 	ret

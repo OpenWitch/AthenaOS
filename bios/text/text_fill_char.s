@@ -37,6 +37,9 @@
  */
     .global text_fill_char
 text_fill_char:
+    test cx, cx
+    jz 9f
+
     push cx
 1:
     push cx
@@ -47,4 +50,5 @@ text_fill_char:
     loop 1b
 3:
     pop cx
+9:
     ret
