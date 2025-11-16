@@ -32,13 +32,16 @@ SRAMWork sramwork;
 
 static const char __far shell_name[] = "@shell";
 
+extern const uint8_t __bss_end;
+
 void main(void) {
     _pc->_ilib = il_ilib_ptr();
     _pc->_proc = il_proc_ptr();
     _pc->_cwfs = rom0_fs;
+    _pc->_argv = &__bss_end;
     sramwork._os_version = 0x1963; // OS version 1.9.99
 
     ShellIL il;
     ilib_open(shell_name, &il);
-    il._launch();
+    proc_run(il._launch, 0, NULL);
 }
