@@ -118,7 +118,6 @@ text_get_fontdata:
     // output: carry - set if no data found
     .global text_sjis_default_font_handler
 text_sjis_default_font_handler:
-    push bx
     push dx
     push ds
 
@@ -126,38 +125,34 @@ text_sjis_default_font_handler:
     pop ds
 
     mov si, offset font_sjis
-    push si
     mov dx, ax
 
 .loop:
-    mov bx, [si]    // BX - start char code
-    cmp bx, 0xFFFF
+    mov cx, [si]    // CX - start char code
+    cmp cx, 0xFFFF
     je .not_found
     add si, 4
 
     cmp dx, [si]     // end char code?
     jae .loop        // if searched >= end, load next value
                         // ... if searched < end
-    cmp dx, bx       // start char code?
+    cmp dx, cx       // start char code?
     jb .not_found    // if searched < begin, it's not here
 
-    sub dx, bx       // DX = ((character code - start char code) * 3) + offset
+    sub dx, cx       // DX = ((character code - start char code) << 3) + offset
     shl dx, 3
     add dx, [si - 2] // + offset
     cmp dx, [si + 2] // compare to next offset
     jae .not_found   // address out of range
 
     mov cx, cs
-    pop si
     add si, dx       // SI = char data start + DX
 
 text_sjis_default_font_handler_finish:
     pop ds
     pop dx
-    pop bx
     retf
 
 .not_found:
-    pop si
     stc
     jmp text_sjis_default_font_handler_finish

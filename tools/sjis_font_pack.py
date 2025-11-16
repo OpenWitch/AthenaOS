@@ -107,9 +107,11 @@ for i in range(min(glyphs.keys()), max(glyphs.keys()) + 1):
 # Write glyph data.
 with open(args.output, "wb") as fout:
     offset = 4 * len(glyphs_rl) + 2
+    relative_header_offset = 0
 
     for row in glyphs_rl:
-        fout.write(struct.pack("<HH", row["index"], offset))
+        relative_header_offset += 4
+        fout.write(struct.pack("<HH", row["index"], offset - relative_header_offset))
         offset += len(row["data"])
     fout.write(struct.pack("<H", 0xFFFF))
     for row in glyphs_rl:
