@@ -45,36 +45,41 @@ static void comm_send_hex(uint16_t value) {
 }
 #endif
 
+// HACK: gcc-ia16 does not handle setting fixed DS correctly in all cases
 IL_FUNCTION
 fent_t __far* __far fs_entries(FS fs) {
-    if (fs == root_fs) {
-        return root_fs_entries;
-    }
-    if (fs == ram0_fs) {
-        return ram0_fs_entries;
-    }
-    if (fs == rom0_fs) {
-        return rom0_fs_entries;
-    }
-    if (fs == kern_fs) {
-        return (fent_t __far*) kern_fs_entries;
+    if (FP_SEG(fs) == 0x1000) {
+        if (FP_OFF(fs) == (uint16_t) root_fs) {
+            return MK_FP(0x1000, (uint16_t) root_fs_entries);
+        }
+        if (FP_OFF(fs) == (uint16_t) ram0_fs) {
+            return MK_FP(0x1000, (uint16_t) ram0_fs_entries);
+        }
+        if (FP_OFF(fs) == (uint16_t) rom0_fs) {
+            return MK_FP(0x1000, (uint16_t) rom0_fs_entries);
+        }
+        if (FP_OFF(fs) == (uint16_t) kern_fs) {
+            return (fent_t __far*) kern_fs_entries;
+        }
     }
     return NULL;
 }
 
 IL_FUNCTION
 int fs_n_entries(FS fs) {
-    if (fs == root_fs) {
-        return ROOTFS_NUM_ENTRIES;
-    }
-    if (fs == ram0_fs) {
-        return RAM0FS_NUM_ENTRIES;
-    }
-    if (fs == rom0_fs) {
-        return ROM0FS_NUM_ENTRIES;
-    }
-    if (fs == kern_fs) {
-        return kern_fs_num_entries;
+    if (FP_SEG(fs) == 0x1000) {
+        if (FP_OFF(fs) == (uint16_t) root_fs) {
+            return ROOTFS_NUM_ENTRIES;
+        }
+        if (FP_OFF(fs) == (uint16_t) ram0_fs) {
+            return RAM0FS_NUM_ENTRIES;
+        }
+        if (FP_OFF(fs) == (uint16_t) rom0_fs) {
+            return ROM0FS_NUM_ENTRIES;
+        }
+        if (FP_OFF(fs) == (uint16_t) kern_fs) {
+            return kern_fs_num_entries;
+        }
     }
     return 0;
 }

@@ -37,6 +37,9 @@
 #include <wonderful.h>
 #include <ws.h>
 
+#undef IL_FUNCTION
+#define IL_FUNCTION __attribute__((cdecl, no_assume_ss_data, no_assume_ds_data)) far
+
 #define OS_SEGMENT 0xE000
 
 #ifdef OS_ENABLE_128K_SRAM
